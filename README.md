@@ -4,7 +4,7 @@ Consulta, monitoramento e exportação de comunicações processuais (intimaçõ
 citações e editais) publicadas no **DJEN – Diário de Justiça Eletrônico
 Nacional**, via Comunica API do PJe (CNJ).
 
-> Em construção. Fases 1, 2 (parcial) e 3 concluídas. A tradução da resposta da
+> Em construção. Fases 1, 2 (parcial), 3 e 4 concluídas. A tradução da resposta da
 > API do CNJ aguarda uma amostra real; até lá, use `DJEN_GATEWAY=fake` para ver a
 > aba Consulta com dados de exemplo.
 
@@ -39,6 +39,24 @@ pelo container `pgsql` do Sail):
 ./vendor/bin/sail test   # Pest
 npm test                 # Vitest
 ```
+
+## Monitoramento
+
+Em terminais separados (ou como serviços em produção):
+
+```bash
+./vendor/bin/sail artisan queue:work redis
+./vendor/bin/sail artisan schedule:work
+```
+
+Para testar sem esperar o horário agendado (07:00 por padrão):
+
+```bash
+./vendor/bin/sail artisan schedule:test --name=djen:monitorar
+```
+
+Os e-mails aparecem no Mailpit (http://localhost:8025). Uma segunda execução
+não repete avisos já enviados.
 
 ## Capturando uma resposta real da API
 

@@ -88,11 +88,14 @@ final class FakeComunicacaoGateway implements ComunicacaoGateway
             return false;
         }
 
-        if ($f->dataInicio !== null && $c->dataDisponibilizacao->lt($f->dataInicio->startOfDay())) {
+        // Datas de calendário: compara AAAA-MM-DD, sem fuso nem horário.
+        $data = $c->dataDisponibilizacao->toDateString();
+
+        if ($f->dataInicio !== null && $data < $f->dataInicio->toDateString()) {
             return false;
         }
 
-        return $f->dataFim === null || $c->dataDisponibilizacao->lte($f->dataFim->endOfDay());
+        return $f->dataFim === null || $data <= $f->dataFim->toDateString();
     }
 
     private static function contem(string $texto, string $busca): bool

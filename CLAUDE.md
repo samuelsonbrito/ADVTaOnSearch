@@ -24,7 +24,8 @@ Aplicação Laravel que consulta, monitora e exporta comunicações processuais
 # Filas e scheduler (em terminais separados)
 ./vendor/bin/sail artisan queue:work redis --tries=3
 ./vendor/bin/sail artisan schedule:work      # roda o scheduler continuamente
-./vendor/bin/sail artisan schedule:test      # dispara um job agendado manualmente
+./vendor/bin/sail artisan schedule:test --name=djen:monitorar   # dispara o monitoramento agendado
+./vendor/bin/sail artisan djen:monitorar [--alvo=ID] [--sync]   # monitora agora (fila ou síncrono)
 
 # Testes
 ./vendor/bin/sail test           # Pest no PostgreSQL (banco `testing`)
@@ -105,11 +106,40 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
   hora. Toda busca imediata **cancela** o debounce pendente (senão ele atropelava a
   paginação), e o debounce não dispara se os filtros já são os da URL.
 
+## Aba Monitoramento
+
+- Rotas `auth`+`verified` em `/monitoramento` (`monitoramento.*`); `dashboard` e o
+  `fortify.home` redirecionam para lá.
+- Tabelas: `monitoring_targets` (tipo `oab|parte|processo` — enum `TipoAlvo`; único por
+  usuário+tipo+valor+uf), `communications` (único em `hash`; jsonb para destinatários e
+  advogados), `communication_target` (= model pivot `Alerta`; único por
+  comunicação+alvo; `lida_em`, `notificada_em`) e `users.whatsapp` (opcional).
+- Fluxo: Scheduler (`routes/console.php`, `dailyAt(djen.monitoring.time)` no fuso
+  configurado) → `djen:monitorar` → um `MonitorarAlvoJob` por alvo ativo
+  (`RateLimited('djen')` + `WithoutOverlapping`) → `MonitorarAlvo::executar()` busca os
+  últimos N dias (paginando até `max_paginas`) e cria comunicações/alertas com
+  `createOrFirst` → notifica os alertas com `notificada_em` nulo e os marca.
+  Deduplicação garantida pelos índices únicos; um aviso que falhou é reenviado na próxima
+  execução, um já enviado nunca se repete.
+- Erros no job: 429 → `release(Retry-After)`; mapeamento pendente/403/4xx → `fail()`;
+  indisponível → exceção (retry com `backoff` 60/300/900 s, 5 tentativas).
+- Notificação `NovasComunicacoes`: `mail` sempre; `WhatsAppChannel` se o usuário tiver
+  número. O canal delega a `WhatsAppDriver` (só `log` implementado; registrar novos
+  drivers em `AppServiceProvider::registerWhatsApp()`).
+- LGPD: excluir alvo, "excluir todos os meus dados" (com senha) e excluir a conta apagam
+  alvos/alertas; comunicações órfãs são apagadas na hora (`Communication::apagarOrfas()`)
+  e diariamente por `model:prune` (`Communication::prunable()`).
+- Traduções dos e-mails do Laravel em `lang/pt_BR.json`.
+- Testes usam `Tests\Support\GatewayEmMemoria` para simular comunicações novas entre execuções.
+- **Datas de disponibilização são datas de calendário**: compare `toDateString()`, nunca
+  instantes (o fuso de Manaus excluía o 1º dia da janela).
+
 ## Configuração
 
 `config/djen.php` (variáveis `DJEN_*` no `.env.example`): base URL, timeout,
 retry/backoff, itens por página, TTL do cache (600 s), rate limits (jobs e por
-IP), horário/fuso/janela do monitoramento e driver do WhatsApp (`log`).
+IP), horário/fuso/janela/paginação/limite de alvos do monitoramento, gateway
+(`DJEN_GATEWAY=api|fake`) e driver do WhatsApp (`log`).
 
 ## Decisões de arquitetura
 

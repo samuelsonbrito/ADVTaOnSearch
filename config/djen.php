@@ -50,6 +50,11 @@ return [
         'timezone' => env('DJEN_MONITORING_TIMEZONE', 'America/Manaus'),
         // Quantos dias para trás cada execução consulta.
         'lookback_days' => (int) env('DJEN_MONITORING_LOOKBACK_DAYS', 3),
+        // Paginação usada pelo Job (por alvo).
+        'itens_por_pagina' => (int) env('DJEN_MONITORING_ITENS_POR_PAGINA', 100),
+        'max_paginas' => (int) env('DJEN_MONITORING_MAX_PAGINAS', 5),
+        // Máximo de alvos por usuário.
+        'max_alvos' => (int) env('DJEN_MONITORING_MAX_ALVOS', 50),
     ],
 
     'whatsapp' => [

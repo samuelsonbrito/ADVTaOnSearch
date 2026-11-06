@@ -28,23 +28,29 @@ const nome = computed(() => page.props.name ?? 'AdvTaOn Search');
                     <span class="sr-only sm:hidden">{{ nome }}</span>
                 </Link>
 
+                <!-- No celular, a marca já leva à Consulta e "Entrar"/"Painel" ao monitoramento. -->
                 <nav
                     aria-label="Principal"
-                    class="flex items-center gap-1 text-sm"
+                    class="hidden items-center gap-1 text-sm sm:flex"
                 >
                     <Link
                         :href="route('consulta.index')"
                         class="rounded-md px-3 py-1.5 font-medium hover:bg-accent"
                         :class="{ 'bg-accent': route().current('consulta.*') }"
-                        aria-current="page"
                     >
                         Consulta
+                    </Link>
+                    <Link
+                        :href="route('monitoramento.index')"
+                        class="rounded-md px-3 py-1.5 font-medium hover:bg-accent"
+                    >
+                        Monitoramento
                     </Link>
                 </nav>
 
                 <div class="ml-auto flex items-center gap-2">
                     <Button v-if="usuario" as-child variant="outline" size="sm">
-                        <Link :href="route('dashboard')">Painel</Link>
+                        <Link :href="route('monitoramento.index')">Painel</Link>
                     </Button>
                     <template v-else>
                         <Button as-child variant="ghost" size="sm">

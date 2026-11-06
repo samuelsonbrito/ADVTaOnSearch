@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -18,6 +19,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property string|null $whatsapp
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -39,6 +41,18 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      *
      * @return array<string, string>
      */
+    /** @return HasMany<MonitoringTarget, $this> */
+    public function monitoringTargets(): HasMany
+    {
+        return $this->hasMany(MonitoringTarget::class);
+    }
+
+    /** Destino do canal App\Notifications\Channels\WhatsAppChannel. */
+    public function routeNotificationForWhatsapp(): ?string
+    {
+        return $this->whatsapp;
+    }
+
     protected function casts(): array
     {
         return [

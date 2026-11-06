@@ -57,3 +57,14 @@ it('pagina e ordena da mais recente para a mais antiga', function () {
             array_map(fn ($c) => $c->hash, $p2->comunicacoes),
         ))->toBeEmpty();
 });
+
+it('compara o período por data de calendário, independente do fuso', function () {
+    // Início às 00:00 em Manaus (04:00 UTC) não pode excluir o próprio dia.
+    $filtro = new FiltroConsulta(
+        tribunal: 'TJAM',
+        dataInicio: CarbonImmutable::parse('2026-11-06 00:00', 'America/Manaus'),
+        dataFim: CarbonImmutable::parse('2026-11-06 00:00', 'America/Manaus'),
+    );
+
+    expect($this->gateway->buscar($filtro)->total)->toBe(2);
+});
