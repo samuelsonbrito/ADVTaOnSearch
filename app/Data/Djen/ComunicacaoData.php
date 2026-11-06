@@ -37,7 +37,8 @@ final readonly class ComunicacaoData
     {
         // strip_tags mantém o conteúdo de <script>/<style>: remove esses blocos inteiros antes.
         $html = (string) preg_replace('#<(script|style|noscript|template)\b[^>]*>.*?</\1\s*>#is', ' ', $this->textoHtml);
-        $html = (string) preg_replace('#<br\s*/?>|</p\s*>|</div\s*>|</li\s*>#i', ' ', $html);
+        // Quebras e fins de bloco viram espaço (senão células de tabela vizinhas grudam).
+        $html = (string) preg_replace('#<br\s*/?>|</(p|div|li|td|th|tr|table|h[1-6]|section|article|header|footer|center|blockquote|pre)\s*>#i', ' ', $html);
         $texto = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
         return trim((string) preg_replace('/\s+/u', ' ', $texto));

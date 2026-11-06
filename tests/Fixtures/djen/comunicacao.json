@@ -1,0 +1,479 @@
+{
+    "status": "success",
+    "message": "Sucesso",
+    "count": 10000,
+    "items": [
+        {
+            "id": 900000001,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "TJMG",
+            "tipoComunicacao": "Intimação",
+            "nomeOrgao": "TJMG - 6ª CÂMARA CÍVEL",
+            "idOrgao": 28275,
+            "texto": "Remetente - JUIZ DE DIREITO DA 1ª VARA DE EXEMPLO; Apelante(s) - MUNICIPIO DE EXEMPLO; Apelado(a)(s) - PARTE FICTICIA UM; <br />Relator - Des(a). Relatora Ficticia<br />Reincluídos na pauta de 17/11/2026, às 13:30 horas. <br /><br />Adv - ADVOGADA FICTICIA UM, ADVOGADO FICTICIO DOIS.",
+            "numero_processo": "50005671920228130395",
+            "meio": "D",
+            "link": "https://www4.tjmg.jus.br/juridico/sf/proc_resultado2.jsp?txtProcesso=50005671920228130395",
+            "tipoDocumento": "Apelação / Reexame Necessário",
+            "nomeClasse": "APELAçãO / REMESSA NECESSáRIA",
+            "codigoClasse": "1728",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "XDVMlJ3NoYGVIAhVTp57ebZLzE4gOP",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+            "numeroprocessocommascara": "5000567-19.2022.8.13.0395",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000001,
+                    "nome": "JUIZ DE DIREITO DA 1ª VARA DE EXEMPLO",
+                    "polo": "A"
+                },
+                {
+                    "comunicacao_id": 900000001,
+                    "nome": "MUNICIPIO DE EXEMPLO",
+                    "polo": "A"
+                },
+                {
+                    "comunicacao_id": 900000001,
+                    "nome": "PARTE FICTICIA UM",
+                    "polo": "P"
+                }
+            ],
+            "destinatarioadvogados": [
+                {
+                    "id": 1300000003,
+                    "comunicacao_id": 900000001,
+                    "advogado_id": 684546,
+                    "created_at": "2026-08-17T14:46:37",
+                    "updated_at": "2026-08-17T14:46:37",
+                    "advogado": {
+                        "id": 684546,
+                        "nome": "ADVOGADA FICTICIA UM",
+                        "numero_oab": "95187",
+                        "uf_oab": "MG"
+                    }
+                },
+                {
+                    "id": 1300000002,
+                    "comunicacao_id": 900000001,
+                    "advogado_id": 708651,
+                    "created_at": "2026-08-17T14:46:37",
+                    "updated_at": "2026-08-17T14:46:37",
+                    "advogado": {
+                        "id": 708651,
+                        "nome": "ADVOGADO FICTICIO DOIS",
+                        "numero_oab": "75977",
+                        "uf_oab": "MG"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 900000002,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "TJRS",
+            "tipoComunicacao": "Edital",
+            "nomeOrgao": "1ª Vara Judicial da Comarca de Exemplo",
+            "idOrgao": 38985,
+            "texto": "<html>\n\t<head>\n\t\t<meta>\n\t\t\n\t\t<style></style>\n\t</head>\n\t<body>\n\t\t<article>\n<section><b>PROCEDIMENTO COMUM C&Iacute;VEL  N&ordm; 5010611-54.2025.8.21.0077/RS</b></section>\n<section><b><table><tr><td>AUTOR</td><td>: SIGILO</td></tr><tr><td>ADVOGADO(A)</td><td>: ADVOGADA FICTICIA TRES (DPE)</td></tr></table></b></section>\n<section>\n<p><strong>Edital de Curatela</strong></p>\n<p><strong>Prazo do Edital:&nbsp;</strong>10 dias</p>\n<p>Objeto:&nbsp;Ci&ecirc;ncia a quem interessar possa de que foi estabelecida a CURATELA de <span>PESSOA FICTICIA</span>.</p></section>\n<footer>\t\t\t\t\n\t\t\t</footer></article></body></html>",
+            "numero_processo": "50106115420258210077",
+            "meio": "E",
+            "link": null,
+            "tipoDocumento": "Edital",
+            "nomeClasse": "PROCEDIMENTO COMUM CíVEL",
+            "codigoClasse": "7",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "vKAPnkeQmZdduPhBhj8eOmZd5o94bD",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Plataforma Nacional de Editais",
+            "numeroprocessocommascara": "5010611-54.2025.8.21.0077",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000002,
+                    "nome": "SIGILO",
+                    "polo": "A"
+                }
+            ],
+            "destinatarioadvogados": [
+                {
+                    "id": 1300000011,
+                    "comunicacao_id": 900000002,
+                    "advogado_id": 4530758,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 4530758,
+                        "nome": "ADVOGADA FICTICIA TRES",
+                        "numero_oab": "81725",
+                        "uf_oab": "RS"
+                    }
+                },
+                {
+                    "id": 1300000010,
+                    "comunicacao_id": 900000002,
+                    "advogado_id": 4830282,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 4830282,
+                        "nome": "ADVOGADA FICTICIA QUATRO",
+                        "numero_oab": "21085",
+                        "uf_oab": "SC"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 900000003,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "TJPR",
+            "tipoComunicacao": "Intimação",
+            "nomeOrgao": "6ª Turma Recursal dos Juizados Especiais",
+            "idOrgao": 39820,
+            "texto": "<table style=\"width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:14px;\"><tr><td><strong>Processo:</strong></td><td>0025850-66.2026.8.16.0182(Embargos de Declara&ccedil;&atilde;o C&iacute;vel)</td></tr><tr><td colspan=\"2\"><strong>Ementa:</strong><br>EMBARGOS DE DECLARA&Ccedil;&Atilde;O CONHECIDOS E N&Atilde;O ACOLHIDOS.</td></tr></table>",
+            "numero_processo": "00258506620268160182",
+            "meio": "D",
+            "link": "https://projudi.tjpr.jus.br/projudi/processo/validacaoDocumentos.do?_tj=exemplo",
+            "tipoDocumento": "Ementa de Acórdão",
+            "nomeClasse": "EMBARGOS DE DECLARAçãO CíVEL",
+            "codigoClasse": "1689",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "XvLko4Pw16XzcwhoTGjd3MYbAKq5Vd",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+            "numeroprocessocommascara": "0025850-66.2026.8.16.0182",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000003,
+                    "nome": "ORGAO PUBLICO DE EXEMPLO",
+                    "polo": "P"
+                },
+                {
+                    "comunicacao_id": 900000003,
+                    "nome": "PARTE FICTICIA DOIS",
+                    "polo": "A"
+                }
+            ],
+            "destinatarioadvogados": [
+                {
+                    "id": 1300000020,
+                    "comunicacao_id": 900000003,
+                    "advogado_id": 1428816,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 1428816,
+                        "nome": "ADVOGADA FICTICIA CINCO",
+                        "numero_oab": "58266",
+                        "uf_oab": "PR"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 900000004,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "TJGO",
+            "tipoComunicacao": "Intimação",
+            "nomeOrgao": "Jandaia - Vara das Fazendas Públicas",
+            "idOrgao": 63178,
+            "texto": "&nbsp;\nPODER JUDICI&Aacute;RIO\nDO ESTADO DE GOI&Aacute;S\nAutos n&deg;: 6125839-20.2026.8.09.0090\nDESPACHO\nDETERMINO a intima&ccedil;&atilde;o da parte autora para, em 10 (dez) dias, apresentar comprovante de endere&ccedil;o.\nIntimem-se. Cumpra-se.",
+            "numero_processo": "61258392020268090090",
+            "meio": "D",
+            "link": "https://projudi.tjgo.jus.br/p?c=exemplo",
+            "tipoDocumento": "Despacho",
+            "nomeClasse": "CUMPRIMENTO DE SENTENçA CONTRA A FAZENDA PúBLICA",
+            "codigoClasse": "12078",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "vEkj97AdKYWMf5hQTOexA16eLPQ1Gg",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+            "numeroprocessocommascara": "6125839-20.2026.8.09.0090",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000004,
+                    "nome": "PARTE FICTICIA TRES",
+                    "polo": "A"
+                }
+            ],
+            "destinatarioadvogados": [
+                {
+                    "id": 1300000031,
+                    "comunicacao_id": 900000004,
+                    "advogado_id": 328842,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 328842,
+                        "nome": "ADVOGADA FICTICIA SEIS",
+                        "numero_oab": "11811N",
+                        "uf_oab": "RO"
+                    }
+                },
+                {
+                    "id": 1300000030,
+                    "comunicacao_id": 900000004,
+                    "advogado_id": 3361603,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 3361603,
+                        "nome": "ADVOGADO FICTICIO SETE",
+                        "numero_oab": "20413-O",
+                        "uf_oab": "MT"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 900000005,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "TJPA",
+            "tipoComunicacao": "Intimação",
+            "nomeOrgao": "9ª Vara Cível e Empresarial de Exemplo",
+            "idOrgao": 868,
+            "texto": "<center>\n<h2>Processo sigiloso</h2>\n<p>Para visualização do documento consulte os autos digitais</p>\n</center>",
+            "numero_processo": "09061102220258140301",
+            "meio": "D",
+            "link": "https://pje.tjpa.jus.br:443/pje/Processo/ConsultaDocumento/listView.seam?x=exemplo",
+            "tipoDocumento": "Decisão",
+            "nomeClasse": "PROCEDIMENTO COMUM CíVEL",
+            "codigoClasse": "7",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "kW5ljVaJnRkDi1hDTelJAk6Ave9mDO",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+            "numeroprocessocommascara": "0906110-22.2025.8.14.0301",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000005,
+                    "nome": "B. F. D. R.",
+                    "polo": "A"
+                },
+                {
+                    "comunicacao_id": 900000005,
+                    "nome": "B. F. D. R.",
+                    "polo": "A"
+                },
+                {
+                    "comunicacao_id": 900000005,
+                    "nome": "E. L.",
+                    "polo": "P"
+                }
+            ],
+            "destinatarioadvogados": [
+                {
+                    "id": 1300000041,
+                    "comunicacao_id": 900000005,
+                    "advogado_id": 4580030,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 4580030,
+                        "nome": "ADVOGADA FICTICIA OITO",
+                        "numero_oab": "309-B",
+                        "uf_oab": "RR"
+                    }
+                },
+                {
+                    "id": 1300000040,
+                    "comunicacao_id": 900000005,
+                    "advogado_id": 4580030,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 4580030,
+                        "nome": "ADVOGADA FICTICIA OITO",
+                        "numero_oab": "309-B",
+                        "uf_oab": "RR"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 900000006,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "TJAM",
+            "tipoComunicacao": "Intimação",
+            "nomeOrgao": "17º Juizado Especial Cível da Comarca de Manaus - JE Cível",
+            "idOrgao": 51209,
+            "texto": "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\"><html lang=\"pt-br\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/></head><style>body{ padding: 10px; font-family: Times New Roman; font-size:13pt }</style><body><div id=\"divHeader\"><b>PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL Nº 0318094-34.2026.8.04.1000/AM</b></div><div id=\"divBody\"><center><p>SENTENÇA</p></center><br/><p>JULGO PROCEDENTES os pedidos deduzidos na inicial.</p></div></body></html>",
+            "numero_processo": "03180943420268041000",
+            "meio": "D",
+            "link": null,
+            "tipoDocumento": "COM JULGAMENTO DE MÉRITO",
+            "nomeClasse": "PROCEDIMENTO DO JUIZADO ESPECIAL CíVEL",
+            "codigoClasse": "436",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "MlkWByzDGYz9hkhvTQmBk8ZebmAjON",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+            "numeroprocessocommascara": "0318094-34.2026.8.04.1000",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000006,
+                    "nome": "BANCO DE EXEMPLO S/A",
+                    "polo": "P"
+                },
+                {
+                    "comunicacao_id": 900000006,
+                    "nome": "PARTE FICTICIA QUATRO",
+                    "polo": "A"
+                }
+            ],
+            "destinatarioadvogados": [
+                {
+                    "id": 1300000052,
+                    "comunicacao_id": 900000006,
+                    "advogado_id": 4866443,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 4866443,
+                        "nome": "SISTEMA DE CITAÇÃO E INTIMAÇÃO ELETRÔNICA",
+                        "numero_oab": "99999999",
+                        "uf_oab": "AM"
+                    }
+                },
+                {
+                    "id": 1300000051,
+                    "comunicacao_id": 900000006,
+                    "advogado_id": 2764349,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 2764349,
+                        "nome": "ADVOGADO FICTICIO NOVE",
+                        "numero_oab": "23599",
+                        "uf_oab": "CE"
+                    }
+                },
+                {
+                    "id": 1300000050,
+                    "comunicacao_id": 900000006,
+                    "advogado_id": 3077502,
+                    "created_at": "2026-11-05T00:00:01",
+                    "updated_at": "2026-11-05T00:00:01",
+                    "advogado": {
+                        "id": 3077502,
+                        "nome": "ADVOGADA FICTICIA DEZ",
+                        "numero_oab": "14431",
+                        "uf_oab": "AM"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 900000007,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "TJRR",
+            "tipoComunicacao": "Lista de distribuição",
+            "nomeOrgao": "1ª Vara da Infância e Juventude - Competência Cível de Boa Vista",
+            "idOrgao": 107221,
+            "texto": "Processo 08496659520268230010 distribuído para a unidade 1ª Vara da Infância e Juventude - Competência Cível de Boa Vista na data de 04/11/2026",
+            "numero_processo": "08496659520268230010",
+            "meio": "D",
+            "link": null,
+            "tipoDocumento": "Comunicação de Distribuição",
+            "nomeClasse": "PEDIDO DE MEDIDA DE PROTEçãO",
+            "codigoClasse": "12070",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "LrEbP1yJdRl5Coh1T7E5av6eXxa8G2",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+            "numeroprocessocommascara": "0849665-95.2026.8.23.0010",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000007,
+                    "nome": "SIGILOSO 1",
+                    "polo": "A"
+                },
+                {
+                    "comunicacao_id": 900000007,
+                    "nome": "SIGILOSO 2",
+                    "polo": "P"
+                }
+            ],
+            "destinatarioadvogados": []
+        },
+        {
+            "id": 900000008,
+            "data_disponibilizacao": "2026-11-06",
+            "siglaTribunal": "CJF",
+            "tipoComunicacao": "Pauta de julgamento",
+            "nomeOrgao": "TURMA NACIONAL DE UNIFORMIZAÇÃO",
+            "idOrgao": 12157,
+            "texto": "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<html lang=\"pt-br\"><head><style></style></head><body><article data-id_sessao_julgamento=\"771792427468980724719683830910\"><section contentEditable=\"false\" data-nome=\"titulo\" align=\"center\"><p>TURMA NACIONAL DE UNIFORMIZAÇÃO </p><p>Pauta de Julgamentos</p></section><section data-nome=\"partes\"><p><span>REQUERENTE</span>: <span>PARTE FICTICIA CINCO</span></p></section></article></body></html>",
+            "numero_processo": "50163347520244047003",
+            "meio": "D",
+            "link": "https://eproctnu.cjf.jus.br/eproc/externo_controlador.php?acao=consulta_publica_pauta&idSessao=exemplo",
+            "tipoDocumento": "Outros",
+            "nomeClasse": "PEDIDO DE UNIFORMIZAçãO DE INTERPRETAçãO DE LEI CíVEL",
+            "codigoClasse": "457",
+            "numeroComunicacao": 1,
+            "ativo": true,
+            "hash": "Jqo8LEjMvRgKt8h5TGKOW7Rmrz2A1x",
+            "status": "P",
+            "motivo_cancelamento": null,
+            "data_cancelamento": null,
+            "datadisponibilizacao": "06/11/2026",
+            "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+            "numeroprocessocommascara": "5016334-75.2024.4.04.7003",
+            "destinatarios": [
+                {
+                    "comunicacao_id": 900000008,
+                    "nome": "INSTITUTO DE EXEMPLO",
+                    "polo": "P"
+                },
+                {
+                    "comunicacao_id": 900000008,
+                    "nome": "PARTE FICTICIA CINCO",
+                    "polo": "A"
+                }
+            ],
+            "destinatarioadvogados": [
+                {
+                    "id": 1300000060,
+                    "comunicacao_id": 900000008,
+                    "advogado_id": 66274,
+                    "created_at": "2026-11-04T13:52:27",
+                    "updated_at": "2026-11-04T13:52:27",
+                    "advogado": {
+                        "id": 66274,
+                        "nome": "ADVOGADO FICTICIO ONZE",
+                        "numero_oab": "69468",
+                        "uf_oab": "PR"
+                    }
+                }
+            ]
+        }
+    ]
+}

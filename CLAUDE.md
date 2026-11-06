@@ -54,8 +54,8 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 - Código e nomes de domínio em português quando refletem o DJEN (`Comunicacao`,
   `Destinatario`, `numeroOab`); infraestrutura Laravel em inglês (tabelas
   `monitoring_targets`, `communications`, ...).
-- **Nunca inventar campos da API.** Os nomes vêm da resposta real salva em
-  `tests/Fixtures/djen/` (ainda pendente: a API bloqueia IPs fora do Brasil).
+- **Nunca inventar campos da API.** Os nomes vêm da resposta real em
+  `tests/Fixtures/djen/` (derivada de uma resposta real, anonimizada; ver o README de lá).
 - Toda chamada ao CNJ passa por `App\Services\Djen\DjenClient`. Nada de `Http::`
   espalhado. Respostas viram DTOs tipados (sem arrays soltos).
 - Controllers devolvem `Inertia::render` com props via API Resources; os tipos
@@ -85,6 +85,26 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
   e `djen-consulta` (por IP, `throttle:djen-consulta`).
 - Testes: `Http::preventStrayRequests()` + `Sleep::fake()`; corpos genéricos
   até a fixture real chegar.
+
+## Resposta da Comunica API (confirmada)
+
+- `GET /comunicacao?itensPorPagina=100` (sem filtros) → 200, `{status, message, count, items}`;
+  `count` é limitado a 10000. Cabeçalhos: `x-ratelimit-limit: 20`, `x-ratelimit-remaining`,
+  `cache-control: max-age=120`, `access-control-allow-origin: *` (o navegador pode chamar direto).
+- Item: `id, data_disponibilizacao (Y-m-d), siglaTribunal, tipoComunicacao, nomeOrgao, idOrgao,
+  texto, numero_processo (20 dígitos), meio (D|E), link|null, tipoDocumento, nomeClasse,
+  codigoClasse (string), numeroComunicacao, ativo, hash, status, motivo_cancelamento,
+  data_cancelamento, datadisponibilizacao (d/m/Y), meiocompleto, numeroprocessocommascara,
+  destinatarios[{comunicacao_id, nome, polo A|P|D|T}], destinatarioadvogados[{id,
+  comunicacao_id, advogado_id, created_at, updated_at, advogado{id, nome, numero_oab, uf_oab}}]`.
+- Pegadinhas tratadas em `ComunicacaoApiMapper`: `texto` vem como texto puro (com `\n` e
+  entidades HTML) ou HTML (fragmento, documento com `<!DOCTYPE>`/`<?xml?>`/`<style>`);
+  destinatários e advogados repetidos; `numero_oab` alfanumérico (`11811N`, `20413-O`);
+  advogado placeholder "SISTEMA DE CITAÇÃO E INTIMAÇÃO ELETRÔNICA" (OAB 99999999);
+  `nomeClasse` com caixa quebrada (não exibido).
+- **Ainda não confirmados**: os nomes dos parâmetros de filtro (OAB, UF, parte, advogado,
+  processo, tribunal, datas, página) e o endpoint de tribunais. `DjenApiGateway` continua
+  lançando `DjenMappingPendingException` até haver uma URL real com esses filtros.
 
 ## Aba Consulta
 
