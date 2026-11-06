@@ -10,8 +10,8 @@ use App\Services\Djen\Exceptions\DjenException;
 /**
  * Fonte de comunicações processuais para o app.
  *
- * Implementações: "api" (Comunica API via DjenClient, aguardando o
- * mapeamento a partir da fixture real) e "fake" (dados de exemplo).
+ * Implementações: "api" (DjenApiGateway: Comunica API via DjenClient +
+ * ComunicacaoApiMapper) e "fake" (FakeComunicacaoGateway: dados de exemplo).
  */
 interface ComunicacaoGateway
 {

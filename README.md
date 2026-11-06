@@ -39,7 +39,9 @@ Nacional**, a partir da Comunica API do PJe (CNJ).
 - `maatwebsite/excel` (CSV/XLSX) · `barryvdh/laravel-dompdf` (PDF)
 - Pest 4 (back-end) · Vitest + Vue Test Utils (front-end)
 
-Decisões de arquitetura e convenções: [CLAUDE.md](CLAUDE.md).
+Documentação completa (arquitetura, integração com o CNJ, cada aba, dados/LGPD,
+front-end, desenvolvimento e operação): [`docs/`](docs/README.md). Resumo técnico
+para quem mexe no código: [CLAUDE.md](CLAUDE.md).
 
 ## Rodando do zero (Sail)
 

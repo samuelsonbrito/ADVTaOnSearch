@@ -3,6 +3,9 @@
 Aplicação Laravel que consulta, monitora e exporta comunicações processuais
 (intimações, citações, editais) do **DJEN**, usando a Comunica API do PJe/CNJ.
 
+Documentação detalhada em `docs/` (índice em `docs/README.md`). Ao mudar um
+comportamento descrito lá, atualize o documento no mesmo commit.
+
 ## Stack
 
 - PHP 8.3+ · Laravel 13 · Fortify (auth do Vue Starter Kit oficial)
