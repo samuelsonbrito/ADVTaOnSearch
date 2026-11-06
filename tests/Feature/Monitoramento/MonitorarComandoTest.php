@@ -64,3 +64,27 @@ it('agenda a limpeza (LGPD) das comunicações órfãs', function () {
     expect($evento)->not->toBeNull()
         ->and($evento->command)->toContain(Communication::class);
 });
+
+it('no modo --sync, a falha de um alvo não impede os demais', function () {
+    Notification::fake();
+    $gateway = new GatewayEmMemoria;
+    $gateway->adicionar('h1');
+    $this->app->instance(ComunicacaoGateway::class, $gateway);
+    [$a, $b] = MonitoringTarget::factory()->count(2)->create();
+
+    // O envio de e-mail do primeiro alvo falha (ex.: SMTP fora do ar).
+    Notification::shouldReceive('send')->andReturnUsing(function ($notifiable) use ($a) {
+        if ($notifiable->is($a->user)) {
+            throw new RuntimeException('Connection could not be established with host "mailpit:1025"');
+        }
+    });
+
+    $this->artisan('djen:monitorar', ['--sync' => true])
+        ->expectsOutputToContain('mailpit:1025')
+        ->expectsOutputToContain('2 alvo(s) verificado(s), 1 com erro.')
+        ->assertFailed();
+
+    // O segundo alvo foi verificado e notificado; o aviso do primeiro fica pendente.
+    expect($b->alertas()->whereNotNull('notificada_em')->count())->toBe(1)
+        ->and($a->alertas()->whereNull('notificada_em')->count())->toBe(1);
+});

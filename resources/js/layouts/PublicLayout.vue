@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { ScrollText } from '@lucide/vue';
 import { computed } from 'vue';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Button } from '@/components/ui/button';
 
 const page = usePage();
@@ -22,7 +22,7 @@ const nome = computed(() => page.props.name ?? 'AdvTaOn Search');
                     <span
                         class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
                     >
-                        <ScrollText class="size-4" aria-hidden="true" />
+                        <AppLogoIcon class="size-5" />
                     </span>
                     <span class="hidden sm:inline">{{ nome }}</span>
                     <span class="sr-only sm:hidden">{{ nome }}</span>

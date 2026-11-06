@@ -2,83 +2,266 @@
 
 Consulta, monitoramento e exportação de comunicações processuais (intimações,
 citações e editais) publicadas no **DJEN – Diário de Justiça Eletrônico
-Nacional**, via Comunica API do PJe (CNJ).
+Nacional**, a partir da Comunica API do PJe (CNJ).
 
-> Em construção. Fases 1, 2 (parcial), 3, 4 e 5 concluídas. A tradução da resposta da
-> API do CNJ aguarda uma amostra real; até lá, use `DJEN_GATEWAY=fake` para ver a
-> aba Consulta com dados de exemplo.
+![Consulta](docs/img/consulta.png)
 
-## Requisitos
+| Aba               | Acesso  | O que faz                                                                                                                                                                |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Consulta**      | pública | Busca por OAB + UF, parte, advogado, processo (máscara CNJ), tribunal e período. Filtros na URL (link compartilhável), paginação, inteiro teor em modal.                 |
+| **Monitoramento** | login   | Alvos por OAB, parte ou processo. Verificação diária agendada, aviso por e-mail (e WhatsApp, plugável) só das comunicações novas, painel de lidas/não lidas e histórico. |
+| **Exportações**   | login   | Seleção em lote (Consulta ou Monitoramento) para CSV, Excel ou PDF. Lotes grandes vão para a fila e avisam por e-mail.                                                   |
 
-- Docker (Laravel Sail) **ou** PHP 8.3+, Composer, Node 22+, PostgreSQL 18 e Redis
-- Acesso de rede a partir do **Brasil**: a Comunica API bloqueia IPs estrangeiros
+> [!IMPORTANT]
+> **Dados reais do CNJ ainda não estão ligados.** A tradução da resposta da Comunica
+> API para o app só será escrita a partir de uma resposta real (o projeto nunca
+> inventa campos da API), e a API bloqueia acessos de fora do Brasil. Até lá, use
+> `DJEN_GATEWAY=fake`, que traz 45 comunicações fictícias. Veja
+> [Ligando os dados reais](#ligando-os-dados-reais).
+
+## Sumário
+
+- [Stack](#stack)
+- [Rodando do zero (Sail)](#rodando-do-zero-sail)
+- [Testes e qualidade](#testes-e-qualidade)
+- [Configuração](#configuração)
+- [Monitoramento](#monitoramento)
+- [Exportação](#exportação)
+- [Ligando os dados reais](#ligando-os-dados-reais)
+- [WhatsApp](#whatsapp)
+- [LGPD](#lgpd)
+- [Deploy em produção](#deploy-em-produção)
+- [Solução de problemas](#solução-de-problemas)
+
+## Stack
+
+- PHP 8.3+ · Laravel 13 · Fortify (Vue Starter Kit oficial)
+- Vue 3 + Inertia 3 + TypeScript + Tailwind 4 + Vite+ · Ziggy para rotas nomeadas
+- PostgreSQL 18 · Redis (cache, sessão, filas) · Mailpit (e-mail local) via Laravel Sail
+- `maatwebsite/excel` (CSV/XLSX) · `barryvdh/laravel-dompdf` (PDF)
+- Pest 4 (back-end) · Vitest + Vue Test Utils (front-end)
+
+Decisões de arquitetura e convenções: [CLAUDE.md](CLAUDE.md).
 
 ## Rodando do zero (Sail)
+
+Requisitos: Docker e Git.
 
 ```bash
 git clone git@github.com:samuelsonbrito/advtaonsearch.git
 cd advtaonsearch
 cp .env.example .env
+```
+
+Instale as dependências PHP com um container descartável:
+
+```bash
 docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html \
     laravelsail/php84-composer:latest composer install --ignore-platform-reqs
+```
+
+Suba os serviços e prepare o app:
+
+```bash
 ./vendor/bin/sail up -d
 ./vendor/bin/sail artisan key:generate
-./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan migrate --seed
 ./vendor/bin/sail npm install
 ./vendor/bin/sail npm run dev
 ```
 
-App em http://localhost, Mailpit em http://localhost:8025.
-
-## Testes
-
-Os testes de back-end usam PostgreSQL (banco `testing`, criado automaticamente
-pelo container `pgsql` do Sail):
-
-```bash
-./vendor/bin/sail test   # Pest
-npm test                 # Vitest
-```
-
-## Monitoramento
-
-Em terminais separados (ou como serviços em produção):
+Em outros dois terminais, a fila e o agendador:
 
 ```bash
 ./vendor/bin/sail artisan queue:work redis
+```
+
+```bash
 ./vendor/bin/sail artisan schedule:work
 ```
 
-Para testar sem esperar o horário agendado (07:00 por padrão):
+Pronto:
+
+- App: http://localhost (a página inicial é a Consulta)
+- E-mails: http://localhost:8025 (Mailpit)
+- Login de demonstração: `demo@advtaon.test` / `password`, já com dois alvos
+
+O `.env.example` já vem com `DJEN_GATEWAY=fake`. Para gerar os primeiros alertas da
+conta de demonstração:
+
+```bash
+./vendor/bin/sail artisan djen:monitorar --sync
+```
+
+<details>
+<summary>Sem Docker</summary>
+
+Com PHP 8.3+, Composer, Node 22+, PostgreSQL e Redis instalados: ajuste no `.env`
+`DB_HOST=127.0.0.1`, `REDIS_HOST=127.0.0.1` e `MAIL_MAILER=log`, crie os bancos
+`advtaon` e `testing` e rode `composer install`, `php artisan key:generate`,
+`php artisan migrate --seed`, `npm install` e `composer dev`.
+</details>
+
+## Testes e qualidade
+
+Os testes de back-end usam PostgreSQL (banco `testing`, criado pelo container `pgsql`).
+
+```bash
+./vendor/bin/sail test
+```
+
+```bash
+./vendor/bin/sail npm test
+```
+
+Tudo o que o CI roda (Pint, lint/format, tipos, Vitest, build, Pest):
+
+```bash
+./vendor/bin/sail composer ci:check
+```
+
+## Configuração
+
+Tudo em `config/djen.php`, com variáveis no `.env`:
+
+| Variável                                                               | Padrão                                  | Para quê                                              |
+| ---------------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------- |
+| `DJEN_GATEWAY`                                                         | `fake` (exemplo)                        | `api` = Comunica API; `fake` = dados fictícios        |
+| `DJEN_BASE_URL`                                                        | `https://comunicaapi.pje.jus.br/api/v1` | Homologação: `https://hcomunicaapi.cnj.jus.br/api/v1` |
+| `DJEN_TIMEOUT` / `DJEN_CONNECT_TIMEOUT`                                | 20 / 5 s                                | Timeouts das chamadas                                 |
+| `DJEN_RETRY_TIMES` / `DJEN_RETRY_SLEEP_MS` / `DJEN_RETRY_MAX_SLEEP_MS` | 3 / 500 / 10000                         | Novas tentativas com backoff (conexão, 429, 5xx)      |
+| `DJEN_ITENS_POR_PAGINA`                                                | 20                                      | Resultados por página na Consulta                     |
+| `DJEN_CACHE_TTL`                                                       | 600 s                                   | Cache das consultas                                   |
+| `DJEN_RATE_LIMIT_PER_MINUTE`                                           | 15                                      | Chamadas ao CNJ por minuto feitas pelos jobs          |
+| `DJEN_PUBLIC_RATE_LIMIT_PER_MINUTE`                                    | 30                                      | Consultas públicas por minuto, por IP                 |
+| `DJEN_MONITORING_TIME` / `DJEN_MONITORING_TIMEZONE`                    | `07:00` / `America/Manaus`              | Horário do monitoramento diário                       |
+| `DJEN_MONITORING_LOOKBACK_DAYS`                                        | 3                                       | Quantos dias para trás cada verificação olha          |
+| `DJEN_MONITORING_MAX_ALVOS`                                            | 50                                      | Alvos por usuário                                     |
+| `DJEN_EXPORT_LIMITE_SINCRONO`                                          | 100                                     | Até quantos itens a exportação é gerada na hora       |
+| `DJEN_EXPORT_MAX_ITENS`                                                | 2000                                    | Máximo de itens por exportação                        |
+| `DJEN_EXPORT_DIAS_RETENCAO`                                            | 7                                       | Dias até apagar arquivos exportados                   |
+| `DJEN_WHATSAPP_DRIVER`                                                 | `log`                                   | Driver do WhatsApp (só `log` por enquanto)            |
+
+## Monitoramento
+
+![Monitoramento](docs/img/monitoramento.png)
+
+1. Cadastre um alvo (OAB + UF, nome da parte ou número do processo).
+2. Todo dia, no horário configurado, o agendador enfileira uma verificação por alvo
+   ativo, que busca as comunicações dos últimos N dias.
+3. Comunicações são guardadas uma única vez (índice único no `hash`) e cada uma gera no
+   máximo um alerta por alvo. O e-mail lista só o que ainda não foi avisado; uma nova
+   execução não repete avisos.
+
+Para disparar a verificação agendada sem esperar o horário (critério de aceite):
 
 ```bash
 ./vendor/bin/sail artisan schedule:test --name=djen:monitorar
 ```
 
-Os e-mails aparecem no Mailpit (http://localhost:8025). Uma segunda execução
-não repete avisos já enviados.
+Use `--name=djen:monitorar`: o filtro compara com o comando, não com a descrição. O
+e-mail aparece no Mailpit depois que o `queue:work` processar a fila. Rode o mesmo
+comando de novo: nenhum aviso repetido.
 
 ## Exportação
 
-Com login, marque as comunicações na Consulta ou no Monitoramento e use a barra
-**Exportar** (CSV, Excel ou PDF). Até 100 itens o download é imediato; acima disso,
-ou em "Exportar todas", o arquivo é gerado na fila (precisa do `queue:work`) e
-chega um e-mail quando estiver pronto. O histórico fica em **Exportações** por 7 dias.
+![Exportações](docs/img/exportacoes.png)
 
-## Capturando uma resposta real da API
+Com login, marque as comunicações na Consulta ou no Monitoramento (ou "Selecionar
+página") e use a barra **Exportar**:
 
-A Comunica API só responde a IPs do Brasil. De uma máquina no Brasil:
+- até 100 itens selecionados: o download começa na hora;
+- mais que isso, ou **Exportar todas**: o arquivo é gerado na fila e chega um e-mail.
+  A aba Exportações atualiza o status sozinha.
+
+O CSV usa `;` e BOM (abre direto no Excel em português). Células que começam com
+`=`, `+`, `-` ou `@` são gravadas como texto, contra injeção de fórmula.
+
+## Ligando os dados reais
+
+O que falta é traduzir a resposta da Comunica API (`DjenApiGateway`) para os DTOs do
+app, a partir de uma resposta **real**. De uma máquina no Brasil:
 
 ```bash
-php artisan djen:capturar-fixture --oab=12345 --uf=AM
+php artisan djen:capturar-fixture --oab=SUA_OAB --uf=AM
 ```
 
-O comando grava `tests/Fixtures/djen/comunicacao.json` e `comunicacao.headers.json`.
-Anonimize nomes e documentos antes de commitar, mantendo chaves e tipos.
+```bash
+php artisan djen:capturar-fixture --endpoint=comunicacao/tribunal --saida=tests/Fixtures/djen/tribunais.json
+```
 
-## Configuração
+Os arquivos vão para `tests/Fixtures/djen/`. Troque nomes e documentos por valores
+fictícios (mantendo chaves e tipos) antes de commitar. Com isso o mapeamento e os
+testes com a resposta real podem ser escritos, e o `DJEN_GATEWAY=api` passa a funcionar.
 
-Veja `config/djen.php` e as variáveis `DJEN_*` em `.env.example`.
+## WhatsApp
+
+As notificações usam um `WhatsAppChannel` que delega a uma interface
+(`App\Notifications\WhatsApp\WhatsAppDriver`). Só o driver `log` existe: ele registra a
+mensagem (com o número mascarado) sem enviar. Para Evolution API, Z-API ou Meta Cloud
+API, implemente a interface e registre o driver em
+`AppServiceProvider::registerWhatsApp()`.
+
+## LGPD
+
+- Guardamos só o necessário para o monitoramento: alvos, comunicações encontradas,
+  estado de leitura e, se informado, o WhatsApp.
+- O usuário exclui um alvo, todos os dados de monitoramento (com senha) ou a conta
+  inteira. Comunicações que nenhum alvo usa mais são apagadas na hora.
+- Uma limpeza diária (`model:prune`) remove comunicações órfãs e exportações expiradas,
+  junto com os arquivos.
+- O driver de WhatsApp `log` mascara o número.
+
+## Deploy em produção
+
+> [!WARNING]
+> **O servidor precisa ter IP no Brasil.** A Comunica API responde `403` para acessos
+> de fora do país, e isso vale para o site e para os jobs de monitoramento. Use um
+> provedor com região brasileira (por exemplo, AWS `sa-east-1`, em São Paulo).
+
+Em uma VPS (Ubuntu) com PHP 8.3+ (FPM), Composer, Node 22+, PostgreSQL, Redis, Nginx e
+Supervisor, os arquivos de referência ficam em [`deploy/`](deploy):
+
+| Arquivo                                 | Uso                                                                                                         |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `deploy/env.production.example`         | Valores de produção do `.env` (sem segredos)                                                                |
+| `deploy/nginx/advtaon.conf`             | Site no Nginx (HTTPS com certbot)                                                                           |
+| `deploy/supervisor/advtaon-worker.conf` | Workers da fila                                                                                             |
+| `deploy/cron/advtaon`                   | Agendador (`schedule:run` a cada minuto)                                                                    |
+| `deploy/deploy.sh`                      | Atualização: manutenção, `git pull`, dependências, build, migrations, caches, `queue:restart` e diagnóstico |
+
+Primeira instalação, resumida:
+
+1. Clone em `/var/www/advtaon`, copie `.env.example` para `.env`, aplique
+   `deploy/env.production.example` e defina senhas e SMTP.
+2. `composer install --no-dev -o`, `php artisan key:generate`, `npm ci`,
+   `npm run build`, `php artisan migrate --force`, `php artisan optimize`.
+3. Instale o Nginx, o Supervisor e o cron com os arquivos de `deploy/`.
+4. Confira o ambiente:
+
+```bash
+php artisan djen:diagnostico
+```
+
+O diagnóstico verifica banco, cache, fila, e-mail e se **este servidor** consegue
+falar com a Comunica API; se a API responder `403`, o servidor está fora do Brasil.
+O endpoint `/up` serve de health check.
+
+Para as próximas atualizações:
+
+```bash
+./deploy/deploy.sh main
+```
+
+## Solução de problemas
+
+| Sintoma                                                          | Causa provável                                                                                               |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Consulta mostra "O CNJ recusou o acesso a partir deste servidor" | IP fora do Brasil (`403`). Rode `php artisan djen:diagnostico`.                                              |
+| Consulta mostra "Integração em implantação"                      | `DJEN_GATEWAY=api` sem o mapeamento da API ([veja acima](#ligando-os-dados-reais)). Use `fake` por enquanto. |
+| E-mail do monitoramento ou da exportação não chega               | `queue:work` parado, ou `MAIL_MAILER` de teste.                                                              |
+| `schedule:test` diz "No matching scheduled command found"        | Use `--name=djen:monitorar`.                                                                                 |
+| Exportação fica "Na fila"                                        | `queue:work` parado.                                                                                         |
 
 ## Licença
 

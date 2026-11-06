@@ -33,6 +33,8 @@ DB_HOST=127.0.0.1 php artisan test   # Pest fora do Sail, com o pgsql do compose
 npm test                         # Vitest (vp test run)
 
 # DJEN
+php artisan djen:diagnostico [--sem-api]               # banco, cache, fila, e-mail e acesso à API deste servidor
+php artisan migrate --seed                            # usuária demo@advtaon.test / password (não roda em produção)
 php artisan djen:capturar-fixture --oab=12345 --uf=AM   # salva resposta REAL (precisa de IP no Brasil)
 php artisan djen:capturar-fixture --endpoint=comunicacao/tribunal --saida=tests/Fixtures/djen/tribunais.json
 
@@ -162,6 +164,30 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 - `ComunicacaoData::textoPuro()` descarta o conteúdo de `<script>`/`<style>` (o
   `strip_tags` sozinho mantinha o código como texto).
 
+## Interface, idioma e erros
+
+- Idioma padrão `pt_BR` (`config/app.php`). Traduções do servidor em `lang/pt_BR/*.php`
+  (validação, auth, senhas, paginação) e `lang/pt_BR.json` (e-mails, Fortify, toasts).
+  As telas do kit (auth, settings, 2FA, passkeys) e os textos de leitor de tela do
+  `components/ui` foram traduzidos no próprio Vue. Novos textos: escreva em português.
+- Identidade: `AppLogoIcon` (documento + lupa, só traço, `fill="none"` nos paths para
+  ignorar o `fill-current` dos layouts), cor da marca em `--primary`/`--sidebar-primary`
+  (`resources/css/app.css`, claro e escuro) e `public/favicon.{svg,ico}` + `apple-touch-icon.png`.
+- Erros: `bootstrap/app.php` renderiza a página Inertia `Erro` (layout público) para
+  403/404/429/500/503; 419 volta com toast; JSON continua JSON; 500 com `APP_DEBUG=true`
+  mostra o erro detalhado. O 429 da Consulta mostra o `Retry-After`.
+- `djen:monitorar --sync` isola falhas por alvo (um SMTP fora do ar não interrompe os
+  demais; o aviso fica pendente e sai na próxima execução) e retorna falha no fim.
+
+## Deploy
+
+- Servidor **com IP no Brasil**. Arquivos em `deploy/`: `deploy.sh` (manutenção, pull,
+  `composer --no-dev`, build, migrate, `optimize`, `queue:restart`, diagnóstico),
+  `nginx/advtaon.conf` (validado com `nginx -t`), `supervisor/advtaon-worker.conf`,
+  `cron/advtaon` e `env.production.example`.
+- O app funciona com `php artisan optimize` (sem `env()` fora de `config/`). Health
+  check em `/up`.
+
 ## Configuração
 
 `config/djen.php` (variáveis `DJEN_*` no `.env.example`): base URL, timeout,
@@ -191,3 +217,8 @@ retenção) e driver do WhatsApp (`log`).
 - Composer: a API do GitHub (zipballs) é bloqueada; instale com
   `composer config -g use-github-api false` e `--prefer-source`.
 - `fonts.bunny.net` e a Comunica API não são acessíveis daqui.
+- O daemon do Docker não sobe sozinho: `dockerd &` e depois `docker compose up -d pgsql`
+  (a imagem do app do Sail não builda aqui por hosts bloqueados; testes rodam com
+  `DB_HOST=127.0.0.1 php artisan test`).
+- Prints com Playwright: use `--lang=pt-BR` no Chromium (o `<input type=date>` segue o
+  idioma do navegador).
