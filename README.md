@@ -9,7 +9,7 @@ Nacional**, via Comunica API do PJe (CNJ).
 
 ## Requisitos
 
-- Docker (Laravel Sail) **ou** PHP 8.3+, Composer, Node 22+, PostgreSQL e Redis
+- Docker (Laravel Sail) **ou** PHP 8.3+, Composer, Node 22+, PostgreSQL 18 e Redis
 - Acesso de rede a partir do **Brasil**: a Comunica API bloqueia IPs estrangeiros
 
 ## Rodando do zero (Sail)
@@ -31,9 +31,12 @@ App em http://localhost, Mailpit em http://localhost:8025.
 
 ## Testes
 
+Os testes de back-end usam PostgreSQL (banco `testing`, criado automaticamente
+pelo container `pgsql` do Sail):
+
 ```bash
-php artisan test   # Pest
-npm test           # Vitest
+./vendor/bin/sail test   # Pest
+npm test                 # Vitest
 ```
 
 ## Configuração

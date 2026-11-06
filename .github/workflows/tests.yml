@@ -13,11 +13,30 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
-    # O .env.example aponta para os serviços do Sail (pgsql/redis); no CI
-    # usamos SQLite em memória e drivers em memória.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: testing
+          POSTGRES_USER: sail
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sail -d testing"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # O .env.example aponta para os hosts do Sail (pgsql/redis); no CI o
+    # PostgreSQL roda como service e os demais drivers ficam em memória.
     env:
-      DB_CONNECTION: sqlite
-      DB_DATABASE: ':memory:'
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: testing
+      DB_USERNAME: sail
+      DB_PASSWORD: password
       CACHE_STORE: array
       SESSION_DRIVER: array
       QUEUE_CONNECTION: sync

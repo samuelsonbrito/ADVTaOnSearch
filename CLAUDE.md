@@ -27,7 +27,8 @@ Aplicação Laravel que consulta, monitora e exporta comunicações processuais
 ./vendor/bin/sail artisan schedule:test      # dispara um job agendado manualmente
 
 # Testes
-php artisan test                 # Pest (SQLite em memória, sem Docker)
+./vendor/bin/sail test           # Pest no PostgreSQL (banco `testing`)
+DB_HOST=127.0.0.1 php artisan test   # Pest fora do Sail, com o pgsql do compose exposto
 npm test                         # Vitest (vp test run)
 
 # Qualidade
@@ -74,8 +75,10 @@ IP), horário/fuso/janela do monitoramento e driver do WhatsApp (`log`).
   ambiente de desenvolvimento em nuvem. Pode voltar depois.
 - **Fonte local** (`@fontsource-variable/plus-jakarta-sans`) em vez de Bunny Fonts:
   build sem dependência externa.
-- **Testes em SQLite em memória** (phpunit.xml e CI), com `withoutVite()` no
-  `TestCase`; Postgres fica para dev/produção. Evitar SQL específico de Postgres.
+- **PostgreSQL em todo lugar**: dev (Sail), testes (banco `testing`, criado pelo
+  Sail) e CI (service `postgres:18-alpine`). Padrão do `config/database.php` é
+  `pgsql`. Pode usar recursos do Postgres (jsonb, índices parciais, `ILIKE`).
+- `withoutVite()` no `TestCase`: testes de back não dependem do build.
 - **Geobloqueio do CNJ**: a Comunica API responde 403 (CloudFront) para IPs
   fora do Brasil. Produção e workers de monitoramento precisam de IP brasileiro.
 
