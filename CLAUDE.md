@@ -31,6 +31,10 @@ Aplicação Laravel que consulta, monitora e exporta comunicações processuais
 DB_HOST=127.0.0.1 php artisan test   # Pest fora do Sail, com o pgsql do compose exposto
 npm test                         # Vitest (vp test run)
 
+# DJEN
+php artisan djen:capturar-fixture --oab=12345 --uf=AM   # salva resposta REAL (precisa de IP no Brasil)
+php artisan djen:capturar-fixture --endpoint=comunicacao/tribunal --saida=tests/Fixtures/djen/tribunais.json
+
 # Qualidade
 vendor/bin/pint                  # formatação PHP
 npm run check                    # lint + format (vp check)
@@ -59,6 +63,25 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
   para manter os filtros na query string.
 - Testes de front: `resources/js/**/*.test.ts`, importando de `vite-plus/test`.
 - Testes de back: `Http::fake()` com a fixture real; `assertInertia` nas telas.
+
+## DjenClient (`app/Services/Djen/`)
+
+- `get($path, $query)` / `getCached($path, $query)` → `DjenResponse` (status,
+  json decodificado, headers, `fromCache`). Ainda **sem DTOs de domínio**: eles
+  dependem da fixture real.
+- Query normalizada: remove `null`/`''`, apara strings; a chave de cache
+  (`djen:` + sha1) ignora a ordem dos parâmetros. Só sucessos vão para o cache.
+- Retry (`retry.times` extras) em falha de conexão, 429 e 5xx, com backoff
+  exponencial `sleep_ms × 2^(n-1)`, limitado por `max_sleep_ms`; em 429 usa o
+  `Retry-After` (também limitado). 4xx não são retentados.
+- Exceções (todas herdam de `DjenException`): `DjenUnavailableException`
+  (timeout/conexão/5xx), `DjenRateLimitedException` (429, `retryAfterSeconds`),
+  `DjenBlockedException` (403 — geobloqueio), `DjenBadRequestException` (outros
+  4xx), `DjenUnexpectedResponseException` (2xx que não é JSON).
+- Rate limiters em `AppServiceProvider`: `djen` (Jobs, `RateLimited('djen')`)
+  e `djen-consulta` (por IP, `throttle:djen-consulta`).
+- Testes: `Http::preventStrayRequests()` + `Sleep::fake()`; corpos genéricos
+  até a fixture real chegar.
 
 ## Configuração
 

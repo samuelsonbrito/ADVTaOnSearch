@@ -4,8 +4,8 @@ Consulta, monitoramento e exportação de comunicações processuais (intimaçõ
 citações e editais) publicadas no **DJEN – Diário de Justiça Eletrônico
 Nacional**, via Comunica API do PJe (CNJ).
 
-> Em construção. Fase 1 (setup) concluída; as próximas fases estão no
-> [CLAUDE.md](CLAUDE.md).
+> Em construção. Fase 1 (setup) e Fase 2 parcial (`DjenClient`) concluídas.
+> DTOs e parsing aguardam uma resposta real da API.
 
 ## Requisitos
 
@@ -38,6 +38,17 @@ pelo container `pgsql` do Sail):
 ./vendor/bin/sail test   # Pest
 npm test                 # Vitest
 ```
+
+## Capturando uma resposta real da API
+
+A Comunica API só responde a IPs do Brasil. De uma máquina no Brasil:
+
+```bash
+php artisan djen:capturar-fixture --oab=12345 --uf=AM
+```
+
+O comando grava `tests/Fixtures/djen/comunicacao.json` e `comunicacao.headers.json`.
+Anonimize nomes e documentos antes de commitar, mantendo chaves e tipos.
 
 ## Configuração
 

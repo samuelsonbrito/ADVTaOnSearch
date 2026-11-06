@@ -25,6 +25,8 @@ return [
     'retry' => [
         'times' => (int) env('DJEN_RETRY_TIMES', 3),
         'sleep_ms' => (int) env('DJEN_RETRY_SLEEP_MS', 500),
+        // Teto de espera entre tentativas (inclusive quando a API manda Retry-After).
+        'max_sleep_ms' => (int) env('DJEN_RETRY_MAX_SLEEP_MS', 10000),
     ],
 
     'itens_por_pagina' => (int) env('DJEN_ITENS_POR_PAGINA', 20),
