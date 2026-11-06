@@ -134,12 +134,41 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 - **Datas de disponibilização são datas de calendário**: compare `toDateString()`, nunca
   instantes (o fuso de Manaus excluía o 1º dia da janela).
 
+## Aba Exportação
+
+- Rotas `auth`+`verified` em `/exportacoes` (`exportacoes.index|store|download|destroy`);
+  `store` com `throttle:10,1`. Tabela `exports` = model `Exportacao` (`origem`
+  consulta|monitoramento, `formato` csv|xlsx|pdf, `status`
+  pendente|processando|concluida|falhou, `parametros` jsonb, `arquivo` no disco privado).
+- Seleção no front: `useSelecao` (chave → página; sobrevive à paginação com
+  preserveState; limpa quando os filtros mudam), `BarraExportacao` (visitante vê convite
+  para entrar), `CardComunicacao` com `selecionavel` + `v-model:selecionada`,
+  `useExportar` (POST + toast de erro).
+- `parametros`: Consulta → `filtros` (query da Consulta) + `selecao` `[{pagina, hashes}]`
+  ou `todos`; Monitoramento → `filtros {alvo, status}` + `selecao` (ids de alertas) ou
+  `todos`. `ColetorExportacao` rebusca as páginas da Consulta (cache do DjenClient) e
+  revalida a posse dos alertas ao gerar. Limite `djen.exportacao.max_itens`.
+- Até `limite_sincrono` itens selecionados: gera na hora e devolve
+  `Inertia::location(download)` (o "409" no console é o mecanismo do Inertia). "Todos" ou
+  seleção maior: `GerarExportacaoJob` (RateLimited só p/ Consulta) + e-mail
+  `ExportacaoConcluida`; a página usa `usePoll` enquanto `emAndamento`.
+- Arquivos: `PlanilhaComunicacoes` (maatwebsite/excel v4; CSV com `;` e BOM; células que
+  começam com `= + - @` ganham `'` contra injeção de fórmula; texto truncado em 32 mil
+  caracteres) e PDF via dompdf com a view `resources/views/exports/comunicacoes.blade.php`
+  (não é tela; tudo escapado; `enable_font_subsetting` — sem ele o PDF passa de 1 MB).
+- LGPD: arquivo apagado junto com o registro (evento `deleting`), `model:prune` diário após
+  `dias_retencao`, e `User::deleting` apaga as exportações por Eloquent (a FK em cascata não
+  dispara eventos e deixaria arquivos órfãos).
+- `ComunicacaoData::textoPuro()` descarta o conteúdo de `<script>`/`<style>` (o
+  `strip_tags` sozinho mantinha o código como texto).
+
 ## Configuração
 
 `config/djen.php` (variáveis `DJEN_*` no `.env.example`): base URL, timeout,
 retry/backoff, itens por página, TTL do cache (600 s), rate limits (jobs e por
 IP), horário/fuso/janela/paginação/limite de alvos do monitoramento, gateway
-(`DJEN_GATEWAY=api|fake`) e driver do WhatsApp (`log`).
+(`DJEN_GATEWAY=api|fake`), exportação (disco, limite síncrono, máximo de itens, dias de
+retenção) e driver do WhatsApp (`log`).
 
 ## Decisões de arquitetura
 

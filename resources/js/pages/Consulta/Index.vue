@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { AlertTriangle, RotateCw, SearchX, ScrollText } from '@lucide/vue';
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
+import BarraExportacao from '@/components/BarraExportacao.vue';
 import CardComunicacao from '@/components/CardComunicacao.vue';
 import SkeletonResultados from '@/components/consulta/SkeletonResultados.vue';
 import EstadoVazio from '@/components/EstadoVazio.vue';
@@ -10,6 +11,8 @@ import ModalInteiroTeor from '@/components/ModalInteiroTeor.vue';
 import Paginacao from '@/components/Paginacao.vue';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useExportar } from '@/composables/useExportar';
+import { useSelecao } from '@/composables/useSelecao';
 import type {
     Comunicacao,
     ConsultaPageProps,
@@ -71,6 +74,46 @@ function tentarNovamente() {
     router.reload({
         onStart: () => (carregando.value = true),
         onFinish: () => (carregando.value = false),
+    });
+}
+
+const logado = computed(() => Boolean(page.props.auth?.user));
+const selecao = useSelecao<string>();
+const { enviando, exportar } = useExportar();
+
+// A seleção vale para a busca atual: filtros novos, seleção nova.
+watch(
+    () => JSON.stringify(props.filtros),
+    () => selecao.limpar(),
+);
+
+const hashesDaPagina = computed(
+    () => props.resultados?.data.map((c) => c.hash) ?? [],
+);
+const paginaAtual = computed(() => props.resultados?.meta.pagina ?? 1);
+
+function pedirExportacao({
+    formato,
+    todos,
+}: {
+    formato: 'csv' | 'xlsx' | 'pdf';
+    todos: boolean;
+}) {
+    const filtros = Object.fromEntries(
+        Object.entries(props.filtros).filter(([, v]) => v !== null && v !== ''),
+    );
+
+    exportar({
+        origem: 'consulta',
+        formato,
+        todos,
+        filtros,
+        selecao: todos
+            ? []
+            : selecao.porPagina().map((g) => ({
+                  pagina: g.pagina,
+                  hashes: g.chaves,
+              })),
     });
 }
 
@@ -163,9 +206,23 @@ const resumo = computed(() =>
                             v-for="c in resultados.data"
                             :key="c.hash"
                             :comunicacao="c"
+                            :selecionavel="logado"
+                            :selecionada="selecao.selecionado(c.hash)"
+                            @update:selecionada="
+                                (v) => selecao.alternar(c.hash, paginaAtual, v)
+                            "
                             @ver-inteiro-teor="abrirInteiroTeor"
                         />
                     </div>
+
+                    <BarraExportacao
+                        :quantidade="selecao.quantidade.value"
+                        :total="resultados.meta.total"
+                        :logado="logado"
+                        :enviando="enviando"
+                        @limpar="selecao.limpar"
+                        @exportar="pedirExportacao"
+                    />
 
                     <Paginacao
                         :pagina="resultados.meta.pagina"

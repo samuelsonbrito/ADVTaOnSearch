@@ -57,6 +57,17 @@ return [
         'max_alvos' => (int) env('DJEN_MONITORING_MAX_ALVOS', 50),
     ],
 
+    'exportacao' => [
+        // Disco privado onde os arquivos ficam até expirarem.
+        'disk' => env('DJEN_EXPORT_DISK', 'local'),
+        // Até este número de itens selecionados, o arquivo é gerado na hora.
+        'limite_sincrono' => (int) env('DJEN_EXPORT_LIMITE_SINCRONO', 100),
+        // Máximo de comunicações por exportação.
+        'max_itens' => (int) env('DJEN_EXPORT_MAX_ITENS', 2000),
+        // LGPD: arquivos e registros são apagados depois de N dias.
+        'dias_retencao' => (int) env('DJEN_EXPORT_DIAS_RETENCAO', 7),
+    ],
+
     'whatsapp' => [
         // Drivers disponíveis: log. (Evolution API, Z-API e Meta Cloud API: a implementar.)
         'driver' => env('DJEN_WHATSAPP_DRIVER', 'log'),

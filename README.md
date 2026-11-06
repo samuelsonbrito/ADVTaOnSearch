@@ -4,7 +4,7 @@ Consulta, monitoramento e exportação de comunicações processuais (intimaçõ
 citações e editais) publicadas no **DJEN – Diário de Justiça Eletrônico
 Nacional**, via Comunica API do PJe (CNJ).
 
-> Em construção. Fases 1, 2 (parcial), 3 e 4 concluídas. A tradução da resposta da
+> Em construção. Fases 1, 2 (parcial), 3, 4 e 5 concluídas. A tradução da resposta da
 > API do CNJ aguarda uma amostra real; até lá, use `DJEN_GATEWAY=fake` para ver a
 > aba Consulta com dados de exemplo.
 
@@ -57,6 +57,13 @@ Para testar sem esperar o horário agendado (07:00 por padrão):
 
 Os e-mails aparecem no Mailpit (http://localhost:8025). Uma segunda execução
 não repete avisos já enviados.
+
+## Exportação
+
+Com login, marque as comunicações na Consulta ou no Monitoramento e use a barra
+**Exportar** (CSV, Excel ou PDF). Até 100 itens o download é imediato; acima disso,
+ou em "Exportar todas", o arquivo é gerado na fila (precisa do `queue:work`) e
+chega um e-mail quando estiver pronto. O histórico fica em **Exportações** por 7 dias.
 
 ## Capturando uma resposta real da API
 

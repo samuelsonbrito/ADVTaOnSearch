@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { formatarData } from '@/lib/cnj';
 import type { Comunicacao } from '@/types/djen';
 
-const props = defineProps<{ comunicacao: Comunicacao }>();
+const props = defineProps<{
+    comunicacao: Comunicacao;
+    /** Mostra a caixa de seleção (exportação em lote). */
+    selecionavel?: boolean;
+}>();
+
+const selecionada = defineModel<boolean>('selecionada', { default: false });
 
 defineEmits<{ verInteiroTeor: [comunicacao: Comunicacao] }>();
 
@@ -22,9 +28,18 @@ const advogados = computed(() =>
 <template>
     <article
         class="rounded-xl border bg-card p-5 text-card-foreground shadow-xs transition-shadow hover:shadow-md"
+        :class="{ 'ring-2 ring-primary/40': selecionavel && selecionada }"
         :aria-labelledby="`processo-${comunicacao.hash}`"
     >
         <header class="flex flex-wrap items-center gap-2">
+            <input
+                v-if="selecionavel"
+                v-model="selecionada"
+                type="checkbox"
+                class="size-4 cursor-pointer accent-primary"
+                :aria-label="`Selecionar ${comunicacao.numeroProcesso}`"
+                data-testid="selecionar"
+            />
             <Badge data-testid="tribunal">{{ comunicacao.tribunal }}</Badge>
             <Badge v-if="comunicacao.tipoComunicacao" variant="secondary">
                 {{ comunicacao.tipoComunicacao }}

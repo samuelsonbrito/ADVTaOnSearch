@@ -36,6 +36,30 @@ final readonly class FiltroConsulta
     }
 
     /**
+     * Reconstrói a partir de toQuery() (ex.: parâmetros salvos de uma exportação).
+     *
+     * @param  array<string, mixed>  $q
+     */
+    public static function fromQuery(array $q, int $pagina = 1, int $porPagina = 20): self
+    {
+        $texto = fn (string $k): ?string => isset($q[$k]) && $q[$k] !== '' ? (string) $q[$k] : null;
+        $data = fn (string $k): ?CarbonImmutable => $texto($k) !== null ? CarbonImmutable::createFromFormat('!Y-m-d', $texto($k)) : null;
+
+        return new self(
+            numeroOab: $texto('oab'),
+            ufOab: $texto('uf'),
+            nomeParte: $texto('parte'),
+            nomeAdvogado: $texto('advogado'),
+            numeroProcesso: $texto('processo'),
+            tribunal: $texto('tribunal'),
+            dataInicio: $data('inicio'),
+            dataFim: $data('fim'),
+            pagina: $pagina,
+            porPagina: $porPagina,
+        );
+    }
+
+    /**
      * Representação para a query string da nossa URL.
      *
      * @return array<string, string|int|null>

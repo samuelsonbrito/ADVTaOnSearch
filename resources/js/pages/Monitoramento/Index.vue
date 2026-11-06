@@ -8,7 +8,8 @@ import {
     MailOpen,
     Radar,
 } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import BarraExportacao from '@/components/BarraExportacao.vue';
 import CardComunicacao from '@/components/CardComunicacao.vue';
 import EstadoVazio from '@/components/EstadoVazio.vue';
 import ModalInteiroTeor from '@/components/ModalInteiroTeor.vue';
@@ -18,6 +19,8 @@ import PreferenciasNotificacao from '@/components/monitoramento/PreferenciasNoti
 import Paginacao from '@/components/Paginacao.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useExportar } from '@/composables/useExportar';
+import { useSelecao } from '@/composables/useSelecao';
 import type { Comunicacao } from '@/types/djen';
 import type {
     Alerta,
@@ -100,6 +103,32 @@ function abrir(alerta: Alerta) {
     if (!alerta.lida) {
         marcar(alerta, true);
     }
+}
+
+const selecao = useSelecao<number>();
+const { enviando, exportar } = useExportar();
+const idsDaPagina = computed(() => props.alertas.data.map((a) => a.id));
+
+// Filtro novo (alvo/status), seleção nova.
+watch(
+    () => [props.filtros.alvo, props.filtros.status],
+    () => selecao.limpar(),
+);
+
+function pedirExportacao({
+    formato,
+    todos,
+}: {
+    formato: 'csv' | 'xlsx' | 'pdf';
+    todos: boolean;
+}) {
+    exportar({
+        origem: 'monitoramento',
+        formato,
+        todos,
+        filtros: { alvo: props.filtros.alvo, status: props.filtros.status },
+        selecao: todos ? [] : selecao.chaves(),
+    });
 }
 
 const vazio = computed(() => {
@@ -228,6 +257,24 @@ const vazio = computed(() => {
                         {{ aba.rotulo }}
                     </button>
                 </div>
+                <label
+                    v-if="alertas.data.length"
+                    class="inline-flex cursor-pointer items-center gap-2 text-sm"
+                >
+                    <input
+                        type="checkbox"
+                        class="size-4 accent-primary"
+                        :checked="selecao.paginaToda(idsDaPagina)"
+                        data-testid="selecionar-pagina"
+                        @change="
+                            selecao.alternarPagina(
+                                idsDaPagina,
+                                alertas.meta.pagina,
+                            )
+                        "
+                    />
+                    Selecionar página
+                </label>
                 <Badge
                     v-if="alvoSelecionado"
                     variant="secondary"
@@ -264,8 +311,18 @@ const vazio = computed(() => {
                         aria-hidden="true"
                     />
                     <CardComunicacao
+                        selecionavel
+                        :selecionada="selecao.selecionado(alerta.id)"
                         :comunicacao="alerta.comunicacao"
                         :class="{ 'border-primary/40': !alerta.lida }"
+                        @update:selecionada="
+                            (v) =>
+                                selecao.alternar(
+                                    alerta.id,
+                                    alertas.meta.pagina,
+                                    v,
+                                )
+                        "
                         @ver-inteiro-teor="abrir(alerta)"
                     >
                         <template #acoes>
@@ -302,6 +359,15 @@ const vazio = computed(() => {
                         </template>
                     </CardComunicacao>
                 </div>
+
+                <BarraExportacao
+                    :quantidade="selecao.quantidade.value"
+                    :total="alertas.meta.total"
+                    logado
+                    :enviando="enviando"
+                    @limpar="selecao.limpar"
+                    @exportar="pedirExportacao"
+                />
 
                 <Paginacao
                     :pagina="alertas.meta.pagina"

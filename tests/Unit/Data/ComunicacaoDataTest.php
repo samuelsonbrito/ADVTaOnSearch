@@ -44,3 +44,9 @@ it('sabe se o filtro tem critério de busca', function () {
         ->and((new FiltroConsulta(dataInicio: CarbonImmutable::today()))->temCriterio())->toBeFalse()
         ->and((new FiltroConsulta(tribunal: 'TJAM'))->temCriterio())->toBeTrue();
 });
+
+it('descarta o conteúdo de script e style no texto puro', function () {
+    $c = comunicacao(['textoHtml' => '<style>p{color:red}</style><p>Intimação</p><script>alert(1)</script><div>fim</div>']);
+
+    expect($c->textoPuro())->toBe('Intimação fim');
+});

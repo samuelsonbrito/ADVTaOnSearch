@@ -66,4 +66,19 @@ describe('CardComunicacao', () => {
 
         expect(wrapper.emitted('verInteiroTeor')).toEqual([[comunicacao]]);
     });
+
+    it('só mostra a caixa de seleção quando selecionável', async () => {
+        expect(
+            mount(CardComunicacao, { props: { comunicacao } })
+                .find('[data-testid="selecionar"]')
+                .exists(),
+        ).toBe(false);
+
+        const wrapper = mount(CardComunicacao, {
+            props: { comunicacao, selecionavel: true, selecionada: false },
+        });
+        await wrapper.find('[data-testid="selecionar"]').setValue(true);
+
+        expect(wrapper.emitted('update:selecionada')).toEqual([[true]]);
+    });
 });

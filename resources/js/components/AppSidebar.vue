@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Radar, Search } from '@lucide/vue';
+import { FileDown, Radar, Search } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -26,6 +26,11 @@ const mainNavItems: NavItem[] = [
         title: 'Consulta',
         href: route('consulta.index'),
         icon: Search,
+    },
+    {
+        title: 'Exportações',
+        href: route('exportacoes.index'),
+        icon: FileDown,
     },
 ];
 </script>

@@ -41,10 +41,25 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      *
      * @return array<string, string>
      */
+    protected static function booted(): void
+    {
+        // A FK apaga as exportações em cascata no banco, sem eventos Eloquent;
+        // apagando antes por Eloquent, os arquivos também saem do disco (LGPD).
+        static::deleting(function (self $user): void {
+            $user->exportacoes()->each(fn (Exportacao $e) => $e->delete());
+        });
+    }
+
     /** @return HasMany<MonitoringTarget, $this> */
     public function monitoringTargets(): HasMany
     {
         return $this->hasMany(MonitoringTarget::class);
+    }
+
+    /** @return HasMany<Exportacao, $this> */
+    public function exportacoes(): HasMany
+    {
+        return $this->hasMany(Exportacao::class);
     }
 
     /** Destino do canal App\Notifications\Channels\WhatsAppChannel. */

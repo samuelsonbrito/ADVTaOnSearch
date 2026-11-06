@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ConsultaController;
+use App\Http\Controllers\ExportacaoController;
 use App\Http\Controllers\Monitoramento\AlertaController;
 use App\Http\Controllers\Monitoramento\AlvoController;
 use App\Http\Controllers\Monitoramento\MonitoramentoController;
@@ -32,6 +33,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::put('notificacoes', [PreferenciasController::class, 'notificacoes'])->name('notificacoes.update');
         Route::delete('dados', [PreferenciasController::class, 'excluirDados'])->name('dados.destroy');
+    });
+
+    Route::prefix('exportacoes')->name('exportacoes.')->controller(ExportacaoController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->middleware('throttle:10,1')->name('store');
+        Route::get('{exportacao}/download', 'download')->name('download');
+        Route::delete('{exportacao}', 'destroy')->name('destroy');
     });
 });
 
