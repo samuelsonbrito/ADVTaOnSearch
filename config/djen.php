@@ -13,6 +13,9 @@ return [
     |
     */
 
+    // Fonte das comunicações: "api" (Comunica API) ou "fake" (dados de exemplo).
+    'gateway' => env('DJEN_GATEWAY', 'api'),
+
     'base_url' => rtrim((string) env('DJEN_BASE_URL', 'https://comunicaapi.pje.jus.br/api/v1'), '/'),
 
     'user_agent' => env('DJEN_USER_AGENT', 'AdvTaOnSearch/1.0'),
@@ -25,6 +28,8 @@ return [
     'retry' => [
         'times' => (int) env('DJEN_RETRY_TIMES', 3),
         'sleep_ms' => (int) env('DJEN_RETRY_SLEEP_MS', 500),
+        // Teto de espera entre tentativas (inclusive quando a API manda Retry-After).
+        'max_sleep_ms' => (int) env('DJEN_RETRY_MAX_SLEEP_MS', 10000),
     ],
 
     'itens_por_pagina' => (int) env('DJEN_ITENS_POR_PAGINA', 20),
@@ -45,6 +50,22 @@ return [
         'timezone' => env('DJEN_MONITORING_TIMEZONE', 'America/Manaus'),
         // Quantos dias para trás cada execução consulta.
         'lookback_days' => (int) env('DJEN_MONITORING_LOOKBACK_DAYS', 3),
+        // Paginação usada pelo Job (por alvo).
+        'itens_por_pagina' => (int) env('DJEN_MONITORING_ITENS_POR_PAGINA', 100),
+        'max_paginas' => (int) env('DJEN_MONITORING_MAX_PAGINAS', 5),
+        // Máximo de alvos por usuário.
+        'max_alvos' => (int) env('DJEN_MONITORING_MAX_ALVOS', 50),
+    ],
+
+    'exportacao' => [
+        // Disco privado onde os arquivos ficam até expirarem.
+        'disk' => env('DJEN_EXPORT_DISK', 'local'),
+        // Até este número de itens selecionados, o arquivo é gerado na hora.
+        'limite_sincrono' => (int) env('DJEN_EXPORT_LIMITE_SINCRONO', 100),
+        // Máximo de comunicações por exportação.
+        'max_itens' => (int) env('DJEN_EXPORT_MAX_ITENS', 2000),
+        // LGPD: arquivos e registros são apagados depois de N dias.
+        'dias_retencao' => (int) env('DJEN_EXPORT_DIAS_RETENCAO', 7),
     ],
 
     'whatsapp' => [

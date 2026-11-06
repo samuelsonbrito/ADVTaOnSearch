@@ -5,6 +5,12 @@ import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
+// O laravel-vite-plugin aborta com CI=true (checagem feita para o servidor de HMR);
+// o Vitest não sobe esse servidor, mas usa o plugin (alias `@`, entre outros).
+if (process.env.VITEST) {
+    process.env.LARAVEL_BYPASS_ENV_CHECK = '1';
+}
+
 export default defineConfig({
     plugins: lazyPlugins(() => [
         laravel({

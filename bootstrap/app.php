@@ -7,6 +7,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,4 +29,32 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Páginas de erro próprias (em português) no lugar das telas padrão.
+        $exceptions->respond(function (Response $response, Throwable $e, Request $request) {
+            $status = $response->getStatusCode();
+
+            if ($request->expectsJson() || ! in_array($status, [403, 404, 419, 429, 500, 503], true)) {
+                return $response;
+            }
+
+            // Em desenvolvimento, 500 continua mostrando o detalhe do erro.
+            if ($status === 500 && config('app.debug')) {
+                return $response;
+            }
+
+            // Sessão/CSRF expirada: volta para a página com um aviso.
+            if ($status === 419) {
+                Inertia::flash('toast', ['type' => 'error', 'message' => 'Sua sessão expirou. Tente de novo.']);
+
+                return back();
+            }
+
+            $retryAfter = $response->headers->get('Retry-After');
+
+            return Inertia::render('Erro', [
+                'status' => $status,
+                'tenteEmSegundos' => is_numeric($retryAfter) ? (int) $retryAfter : null,
+            ])->toResponse($request)->setStatusCode($status);
+        });
     })->create();
