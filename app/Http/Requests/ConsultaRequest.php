@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Data\Djen\FiltroConsulta;
+use App\Support\Oab;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -58,7 +59,7 @@ class ConsultaRequest extends FormRequest
         }
 
         if ($limpo['oab'] !== null) {
-            $limpo['oab'] = preg_replace('/\D/', '', $limpo['oab']);
+            $limpo['oab'] = Oab::normalizar($limpo['oab']);
         }
 
         if ($limpo['processo'] !== null) {
@@ -80,7 +81,7 @@ class ConsultaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'oab' => ['nullable', 'regex:/^\d{1,8}$/', 'required_with:uf'],
+            'oab' => ['nullable', 'regex:'.Oab::REGEX, 'required_with:uf'],
             'uf' => ['nullable', Rule::in(self::UFS), 'required_with:oab'],
             'parte' => ['nullable', 'string', 'min:3', 'max:120'],
             'advogado' => ['nullable', 'string', 'min:3', 'max:120'],
@@ -98,7 +99,7 @@ class ConsultaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'oab.regex' => 'Informe apenas os números da OAB.',
+            'oab.regex' => 'Número da OAB inválido. Ex.: 12345 ou 12345-A.',
             'oab.required_with' => 'Informe o número da OAB junto com a UF.',
             'uf.required_with' => 'Informe a UF da OAB.',
             'uf.in' => 'UF inválida.',

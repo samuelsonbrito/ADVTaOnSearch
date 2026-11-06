@@ -34,6 +34,7 @@ npm test                         # Vitest (vp test run)
 
 # DJEN
 php artisan djen:diagnostico [--sem-api]               # banco, cache, fila, e-mail e acesso à API deste servidor
+php artisan djen:verificar-filtros --oab=X --uf=UF [--processo= --parte= --advogado=]  # confere na API real se cada filtro filtra
 php artisan migrate --seed                            # usuária demo@advtaon.test / password (não roda em produção)
 php artisan djen:capturar-fixture --oab=12345 --uf=AM   # salva resposta REAL (precisa de IP no Brasil)
 php artisan djen:capturar-fixture --endpoint=comunicacao/tribunal --saida=tests/Fixtures/djen/tribunais.json
@@ -70,8 +71,10 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 ## DjenClient (`app/Services/Djen/`)
 
 - `get($path, $query)` / `getCached($path, $query)` → `DjenResponse` (status,
-  json decodificado, headers, `fromCache`). Ainda **sem DTOs de domínio**: eles
-  dependem da fixture real.
+  json decodificado, headers, `fromCache`). A tradução para DTOs fica em
+  `Mapping\ComunicacaoApiMapper`; o `Gateways\DjenApiGateway` junta os dois.
+- **Arquitetura**: o navegador só fala com o nosso backend; o backend chama o CNJ
+  (decisão do produto, mesmo a API aceitando CORS). Servidor com IP no Brasil.
 - Query normalizada: remove `null`/`''`, apara strings; a chave de cache
   (`djen:` + sha1) ignora a ordem dos parâmetros. Só sucessos vão para o cache.
 - Retry (`retry.times` extras) em falha de conexão, 429 e 5xx, com backoff
@@ -83,8 +86,8 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
   4xx), `DjenUnexpectedResponseException` (2xx que não é JSON).
 - Rate limiters em `AppServiceProvider`: `djen` (Jobs, `RateLimited('djen')`)
   e `djen-consulta` (por IP, `throttle:djen-consulta`).
-- Testes: `Http::preventStrayRequests()` + `Sleep::fake()`; corpos genéricos
-  até a fixture real chegar.
+- Testes: `Http::preventStrayRequests()` + `Sleep::fake()`; testes do gateway usam a
+  fixture `tests/Fixtures/djen/comunicacao.json`.
 
 ## Resposta da Comunica API (confirmada)
 
@@ -102,22 +105,27 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
   destinatários e advogados repetidos; `numero_oab` alfanumérico (`11811N`, `20413-O`);
   advogado placeholder "SISTEMA DE CITAÇÃO E INTIMAÇÃO ELETRÔNICA" (OAB 99999999);
   `nomeClasse` com caixa quebrada (não exibido).
-- **Ainda não confirmados**: os nomes dos parâmetros de filtro (OAB, UF, parte, advogado,
-  processo, tribunal, datas, página) e o endpoint de tribunais. `DjenApiGateway` continua
-  lançando `DjenMappingPendingException` até haver uma URL real com esses filtros.
+- Parâmetros enviados (`DjenApiGateway::parametros()`): `numeroOab, ufOab, nomeParte,
+  nomeAdvogado, numeroProcesso, siglaTribunal, dataDisponibilizacaoInicio/Fim (Y-m-d),
+  pagina, itensPorPagina`. Só `itensPorPagina` foi visto num request real; os demais vêm do
+  escopo do projeto e da documentação pública, e são **conferidos no servidor** por
+  `djen:verificar-filtros` (um nome errado é ignorado pela API, e o comando detecta).
+- Tribunais: lista estática em `config/tribunais.php`, com siglas no formato de
+  `siglaTribunal` (não há endpoint confirmado para isso).
+- OAB pode ter letra (`App\Support\Oab`: `^\d{1,8}(-?[A-Z])?$`, normalizada em maiúsculas;
+  no front, `normalizarOab`).
 
 ## Aba Consulta
 
 - Rota pública `GET /consulta` (`consulta.index`, `throttle:djen-consulta`); `/` redireciona para ela.
 - Query string do app: `oab, uf, parte, advogado, processo, tribunal, inicio, fim, pagina`.
-  `ConsultaRequest` normaliza (só dígitos em OAB/processo, UF/tribunal em maiúsculas) e,
+  `ConsultaRequest` normaliza (OAB via `Oab::normalizar`, só dígitos no processo, UF/tribunal em maiúsculas) e,
   em caso de erro, **não redireciona** (evita loop em link compartilhado): a página
   recebe `errors` e não consulta.
 - `ConsultaController` → `ComunicacaoGateway::buscar(FiltroConsulta)` → `ResultadoConsulta`
   → `ResultadoConsultaResource`. Falhas viram a prop `erro {tipo, mensagem}`.
-- Gateways (`DJEN_GATEWAY`): `api` (`DjenApiGateway`, **pendente**: lança
-  `DjenMappingPendingException` até existir a fixture real) e `fake`
-  (`FakeComunicacaoGateway`, 45 comunicações fictícias determinísticas).
+- Gateways (`DJEN_GATEWAY`): `api` (padrão; `DjenApiGateway`) e `fake`
+  (`FakeComunicacaoGateway`, 45 comunicações fictícias, para desenvolver fora do Brasil).
 - DTOs do app em `app/Data/Djen/` (contrato da interface, não da API).
 - Inteiro teor: HTML sanitizado no servidor (`App\Support\HtmlSanitizer`, allowlist,
   sem atributos) antes do `v-html`. `linkDocumento` só aceita http(s).
@@ -143,7 +151,7 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
   `createOrFirst` → notifica os alertas com `notificada_em` nulo e os marca.
   Deduplicação garantida pelos índices únicos; um aviso que falhou é reenviado na próxima
   execução, um já enviado nunca se repete.
-- Erros no job: 429 → `release(Retry-After)`; mapeamento pendente/403/4xx → `fail()`;
+- Erros no job: 429 → `release(Retry-After)`; 403/4xx → `fail()`;
   indisponível → exceção (retry com `backoff` 60/300/900 s, 5 tentativas).
 - Notificação `NovasComunicacoes`: `mail` sempre; `WhatsAppChannel` se o usuário tiver
   número. O canal delega a `WhatsAppDriver` (só `log` implementado; registrar novos

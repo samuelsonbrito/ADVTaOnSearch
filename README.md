@@ -13,11 +13,9 @@ Nacional**, a partir da Comunica API do PJe (CNJ).
 | **Exportações**   | login   | Seleção em lote (Consulta ou Monitoramento) para CSV, Excel ou PDF. Lotes grandes vão para a fila e avisam por e-mail.                                                   |
 
 > [!IMPORTANT]
-> **Dados reais do CNJ ainda não estão ligados.** A tradução da resposta da Comunica
-> API para o app só será escrita a partir de uma resposta real (o projeto nunca
-> inventa campos da API), e a API bloqueia acessos de fora do Brasil. Até lá, use
-> `DJEN_GATEWAY=fake`, que traz 45 comunicações fictícias. Veja
-> [Ligando os dados reais](#ligando-os-dados-reais).
+> O AdvTaOn chama a Comunica API do CNJ **pelo backend**, e a API **bloqueia IPs fora
+> do Brasil**. Rode o servidor (e os workers) no Brasil. Para desenvolver fora do
+> país, use `DJEN_GATEWAY=fake` (45 comunicações fictícias).
 
 ## Sumário
 
@@ -27,7 +25,7 @@ Nacional**, a partir da Comunica API do PJe (CNJ).
 - [Configuração](#configuração)
 - [Monitoramento](#monitoramento)
 - [Exportação](#exportação)
-- [Ligando os dados reais](#ligando-os-dados-reais)
+- [Dados reais e verificação dos filtros](#dados-reais-e-verificação-dos-filtros)
 - [WhatsApp](#whatsapp)
 - [LGPD](#lgpd)
 - [Deploy em produção](#deploy-em-produção)
@@ -86,8 +84,9 @@ Pronto:
 - E-mails: http://localhost:8025 (Mailpit)
 - Login de demonstração: `demo@advtaon.test` / `password`, já com dois alvos
 
-O `.env.example` já vem com `DJEN_GATEWAY=fake`. Para gerar os primeiros alertas da
-conta de demonstração:
+O `.env.example` vem com `DJEN_GATEWAY=api` (dados reais; exige estar no Brasil). Fora do
+Brasil, troque para `fake`. Para gerar os primeiros alertas da conta de demonstração
+(com `fake`, os alvos dela têm resultados):
 
 ```bash
 ./vendor/bin/sail artisan djen:monitorar --sync
@@ -124,23 +123,23 @@ Tudo o que o CI roda (Pint, lint/format, tipos, Vitest, build, Pest):
 
 Tudo em `config/djen.php`, com variáveis no `.env`:
 
-| Variável                                                               | Padrão                                  | Para quê                                              |
-| ---------------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------- |
-| `DJEN_GATEWAY`                                                         | `fake` (exemplo)                        | `api` = Comunica API; `fake` = dados fictícios        |
-| `DJEN_BASE_URL`                                                        | `https://comunicaapi.pje.jus.br/api/v1` | Homologação: `https://hcomunicaapi.cnj.jus.br/api/v1` |
-| `DJEN_TIMEOUT` / `DJEN_CONNECT_TIMEOUT`                                | 20 / 5 s                                | Timeouts das chamadas                                 |
-| `DJEN_RETRY_TIMES` / `DJEN_RETRY_SLEEP_MS` / `DJEN_RETRY_MAX_SLEEP_MS` | 3 / 500 / 10000                         | Novas tentativas com backoff (conexão, 429, 5xx)      |
-| `DJEN_ITENS_POR_PAGINA`                                                | 20                                      | Resultados por página na Consulta                     |
-| `DJEN_CACHE_TTL`                                                       | 600 s                                   | Cache das consultas                                   |
-| `DJEN_RATE_LIMIT_PER_MINUTE`                                           | 15                                      | Chamadas ao CNJ por minuto feitas pelos jobs          |
-| `DJEN_PUBLIC_RATE_LIMIT_PER_MINUTE`                                    | 30                                      | Consultas públicas por minuto, por IP                 |
-| `DJEN_MONITORING_TIME` / `DJEN_MONITORING_TIMEZONE`                    | `07:00` / `America/Manaus`              | Horário do monitoramento diário                       |
-| `DJEN_MONITORING_LOOKBACK_DAYS`                                        | 3                                       | Quantos dias para trás cada verificação olha          |
-| `DJEN_MONITORING_MAX_ALVOS`                                            | 50                                      | Alvos por usuário                                     |
-| `DJEN_EXPORT_LIMITE_SINCRONO`                                          | 100                                     | Até quantos itens a exportação é gerada na hora       |
-| `DJEN_EXPORT_MAX_ITENS`                                                | 2000                                    | Máximo de itens por exportação                        |
-| `DJEN_EXPORT_DIAS_RETENCAO`                                            | 7                                       | Dias até apagar arquivos exportados                   |
-| `DJEN_WHATSAPP_DRIVER`                                                 | `log`                                   | Driver do WhatsApp (só `log` por enquanto)            |
+| Variável                                                               | Padrão                                  | Para quê                                                     |
+| ---------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------ |
+| `DJEN_GATEWAY`                                                         | `api`                                   | `api` = Comunica API (via backend); `fake` = dados fictícios |
+| `DJEN_BASE_URL`                                                        | `https://comunicaapi.pje.jus.br/api/v1` | Homologação: `https://hcomunicaapi.cnj.jus.br/api/v1`        |
+| `DJEN_TIMEOUT` / `DJEN_CONNECT_TIMEOUT`                                | 20 / 5 s                                | Timeouts das chamadas                                        |
+| `DJEN_RETRY_TIMES` / `DJEN_RETRY_SLEEP_MS` / `DJEN_RETRY_MAX_SLEEP_MS` | 3 / 500 / 10000                         | Novas tentativas com backoff (conexão, 429, 5xx)             |
+| `DJEN_ITENS_POR_PAGINA`                                                | 20                                      | Resultados por página na Consulta                            |
+| `DJEN_CACHE_TTL`                                                       | 600 s                                   | Cache das consultas                                          |
+| `DJEN_RATE_LIMIT_PER_MINUTE`                                           | 15                                      | Chamadas ao CNJ por minuto feitas pelos jobs                 |
+| `DJEN_PUBLIC_RATE_LIMIT_PER_MINUTE`                                    | 30                                      | Consultas públicas por minuto, por IP                        |
+| `DJEN_MONITORING_TIME` / `DJEN_MONITORING_TIMEZONE`                    | `07:00` / `America/Manaus`              | Horário do monitoramento diário                              |
+| `DJEN_MONITORING_LOOKBACK_DAYS`                                        | 3                                       | Quantos dias para trás cada verificação olha                 |
+| `DJEN_MONITORING_MAX_ALVOS`                                            | 50                                      | Alvos por usuário                                            |
+| `DJEN_EXPORT_LIMITE_SINCRONO`                                          | 100                                     | Até quantos itens a exportação é gerada na hora              |
+| `DJEN_EXPORT_MAX_ITENS`                                                | 2000                                    | Máximo de itens por exportação                               |
+| `DJEN_EXPORT_DIAS_RETENCAO`                                            | 7                                       | Dias até apagar arquivos exportados                          |
+| `DJEN_WHATSAPP_DRIVER`                                                 | `log`                                   | Driver do WhatsApp (só `log` por enquanto)                   |
 
 ## Monitoramento
 
@@ -177,22 +176,20 @@ página") e use a barra **Exportar**:
 O CSV usa `;` e BOM (abre direto no Excel em português). Células que começam com
 `=`, `+`, `-` ou `@` são gravadas como texto, contra injeção de fórmula.
 
-## Ligando os dados reais
+## Dados reais e verificação dos filtros
 
-O que falta é traduzir a resposta da Comunica API (`DjenApiGateway`) para os DTOs do
-app, a partir de uma resposta **real**. De uma máquina no Brasil:
-
-```bash
-php artisan djen:capturar-fixture --oab=SUA_OAB --uf=AM
-```
+A resposta da API foi mapeada a partir de uma resposta real (fixture anonimizada em
+`tests/Fixtures/djen/`). Os nomes dos parâmetros de filtro ainda precisam ser
+confirmados contra a API real. No servidor (no Brasil), depois do deploy:
 
 ```bash
-php artisan djen:capturar-fixture --endpoint=comunicacao/tribunal --saida=tests/Fixtures/djen/tribunais.json
+php artisan djen:verificar-filtros --oab=SUA_OAB --uf=UF --processo=UM_PROCESSO --parte="UM NOME"
 ```
 
-Os arquivos vão para `tests/Fixtures/djen/`. Troque nomes e documentos por valores
-fictícios (mantendo chaves e tipos) antes de commitar. Com isso o mapeamento e os
-testes com a resposta real podem ser escritos, e o `DJEN_GATEWAY=api` passa a funcionar.
+O comando faz poucas chamadas pequenas e confere se cada filtro realmente filtra. Se
+algum aparecer como **FALHOU**, a API está ignorando aquele parâmetro: ajuste o nome em
+`DjenApiGateway::parametros()`. Para atualizar a fixture com uma resposta nova:
+`php artisan djen:capturar-fixture` (anonimize antes de commitar).
 
 ## WhatsApp
 
@@ -255,13 +252,13 @@ Para as próximas atualizações:
 
 ## Solução de problemas
 
-| Sintoma                                                          | Causa provável                                                                                               |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Consulta mostra "O CNJ recusou o acesso a partir deste servidor" | IP fora do Brasil (`403`). Rode `php artisan djen:diagnostico`.                                              |
-| Consulta mostra "Integração em implantação"                      | `DJEN_GATEWAY=api` sem o mapeamento da API ([veja acima](#ligando-os-dados-reais)). Use `fake` por enquanto. |
-| E-mail do monitoramento ou da exportação não chega               | `queue:work` parado, ou `MAIL_MAILER` de teste.                                                              |
-| `schedule:test` diz "No matching scheduled command found"        | Use `--name=djen:monitorar`.                                                                                 |
-| Exportação fica "Na fila"                                        | `queue:work` parado.                                                                                         |
+| Sintoma                                                          | Causa provável                                                       |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Consulta mostra "O CNJ recusou o acesso a partir deste servidor" | IP fora do Brasil (`403`). Rode `php artisan djen:diagnostico`.      |
+| A busca traz resultados que não batem com o filtro               | Nome de parâmetro errado: rode `php artisan djen:verificar-filtros`. |
+| E-mail do monitoramento ou da exportação não chega               | `queue:work` parado, ou `MAIL_MAILER` de teste.                      |
+| `schedule:test` diz "No matching scheduled command found"        | Use `--name=djen:monitorar`.                                         |
+| Exportação fica "Na fila"                                        | `queue:work` parado.                                                 |
 
 ## Licença
 

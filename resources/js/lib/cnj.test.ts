@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { cnjCompleto, formatarData, mascaraCnj, somenteDigitos } from './cnj';
+import {
+    cnjCompleto,
+    formatarData,
+    mascaraCnj,
+    normalizarOab,
+    somenteDigitos,
+} from './cnj';
 
 describe('mascaraCnj', () => {
     it('formata um número completo', () => {
@@ -32,5 +38,13 @@ describe('formatarData', () => {
     it('converte ISO para o formato brasileiro', () => {
         expect(formatarData('2026-11-06')).toBe('06/11/2026');
         expect(formatarData('inválida')).toBe('inválida');
+    });
+});
+
+describe('normalizarOab', () => {
+    it('mantém letra e hífen e limpa o resto', () => {
+        expect(normalizarOab(' 12.345 ')).toBe('12345');
+        expect(normalizarOab('20413-o')).toBe('20413-O');
+        expect(normalizarOab('OAB 11811n')).toBe('11811N');
     });
 });

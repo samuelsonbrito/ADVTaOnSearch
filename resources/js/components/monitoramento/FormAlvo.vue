@@ -28,7 +28,7 @@ const selectClass =
 const placeholder = computed(
     () =>
         ({
-            oab: 'Número da OAB, ex.: 12345',
+            oab: 'Ex.: 12345 ou 12345-A',
             parte: 'Nome completo da parte',
             processo: '0000000-00.0000.0.00.0000',
         })[form.tipo],
@@ -86,7 +86,7 @@ defineExpose({ form });
                     :model-value="form.valor"
                     name="valor"
                     autocomplete="off"
-                    :inputmode="form.tipo === 'parte' ? 'text' : 'numeric'"
+                    :inputmode="form.tipo === 'processo' ? 'numeric' : 'text'"
                     :placeholder="placeholder"
                     :class="{ 'font-mono': form.tipo === 'processo' }"
                     :aria-invalid="Boolean(form.errors.valor)"

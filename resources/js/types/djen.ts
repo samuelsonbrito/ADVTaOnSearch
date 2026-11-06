@@ -51,7 +51,7 @@ export interface Tribunal {
 
 /** ConsultaController::erro() */
 export interface ErroConsulta {
-    tipo: 'pendente' | 'limite' | 'bloqueado' | 'indisponivel' | 'inesperado';
+    tipo: 'limite' | 'bloqueado' | 'indisponivel' | 'inesperado';
     mensagem: string;
 }
 

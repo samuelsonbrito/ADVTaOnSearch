@@ -42,3 +42,15 @@ export function formatarData(iso: string): string {
 
     return ano && mes && dia ? `${dia}/${mes}/${ano}` : iso;
 }
+
+/**
+ * Número da OAB como o back-end espera (App\Support\Oab): maiúsculas, sem
+ * espaços, pontos ou barras. Mantém letra final e hífen (ex.: 20413-O).
+ */
+export function normalizarOab(valor: string): string {
+    return valor
+        .trim()
+        .toUpperCase()
+        .replace(/^OAB\s*/, '')
+        .replace(/[\s./]/g, '');
+}

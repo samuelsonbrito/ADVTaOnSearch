@@ -81,6 +81,17 @@ describe('FiltroBusca', () => {
         ]);
     });
 
+    it('envia OAB com letra, em maiúsculas', async () => {
+        const wrapper = montar({ uf: 'MT' });
+
+        await wrapper.find('#filtro-oab').setValue('20413-o');
+        await wrapper.find('form').trigger('submit');
+
+        expect(wrapper.emitted('buscar')?.at(-1)).toEqual([
+            { ...vazio, uf: 'MT', oab: '20413-O' },
+        ]);
+    });
+
     it('aplica máscara CNJ enquanto digita', async () => {
         const wrapper = montar();
         const input = wrapper.find('#filtro-processo');

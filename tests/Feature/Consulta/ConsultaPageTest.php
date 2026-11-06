@@ -137,13 +137,6 @@ it('mostra mensagem amigável quando a API do CNJ falha', function (Throwable $e
     'bloqueado' => [new DjenBlockedException('403', 403), 'bloqueado'],
 ]);
 
-it('avisa que a integração real aguarda o mapeamento', function () {
-    $this->app->instance(ComunicacaoGateway::class, app(DjenApiGateway::class));
-
-    $this->get(route('consulta.index', ['tribunal' => 'TJAM']))
-        ->assertInertia(fn (Assert $page) => $page->where('erro.tipo', 'pendente'));
-});
-
 it('limita as consultas por IP', function () {
     config(['djen.rate_limit.public_per_minute' => 2]);
 

@@ -161,17 +161,10 @@ const resumo = computed(() =>
                 data-testid="erro-api"
             >
                 <AlertTriangle class="size-4" />
-                <AlertTitle>
-                    {{
-                        erro.tipo === 'pendente'
-                            ? 'Integração em implantação'
-                            : 'Não foi possível consultar o CNJ'
-                    }}
-                </AlertTitle>
+                <AlertTitle> Não foi possível consultar o CNJ </AlertTitle>
                 <AlertDescription>
                     <p>{{ erro.mensagem }}</p>
                     <Button
-                        v-if="erro.tipo !== 'pendente'"
                         variant="outline"
                         size="sm"
                         class="mt-3"

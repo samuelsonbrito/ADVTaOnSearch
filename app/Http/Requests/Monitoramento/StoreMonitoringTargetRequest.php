@@ -4,6 +4,7 @@ namespace App\Http\Requests\Monitoramento;
 
 use App\Enums\TipoAlvo;
 use App\Http\Requests\ConsultaRequest;
+use App\Support\Oab;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -22,7 +23,8 @@ class StoreMonitoringTargetRequest extends FormRequest
 
         $this->merge([
             'valor' => match ($tipo) {
-                TipoAlvo::Oab, TipoAlvo::Processo => preg_replace('/\D/', '', $valor),
+                TipoAlvo::Oab => Oab::normalizar($valor),
+                TipoAlvo::Processo => preg_replace('/\D/', '', $valor),
                 default => preg_replace('/\s+/u', ' ', $valor),
             },
             'uf' => $tipo === TipoAlvo::Oab && $this->filled('uf') ? mb_strtoupper(trim((string) $this->input('uf'))) : null,
@@ -40,7 +42,7 @@ class StoreMonitoringTargetRequest extends FormRequest
         return [
             'tipo' => ['required', Rule::enum(TipoAlvo::class)],
             'valor' => array_merge(['required', 'string'], match ($tipo) {
-                TipoAlvo::Oab => ['regex:/^\d{1,8}$/'],
+                TipoAlvo::Oab => ['regex:'.Oab::REGEX],
                 TipoAlvo::Processo => ['digits:20'],
                 TipoAlvo::Parte => ['min:3', 'max:120'],
                 default => [],
@@ -76,7 +78,7 @@ class StoreMonitoringTargetRequest extends FormRequest
         return [
             'tipo.*' => 'Escolha o tipo de alvo.',
             'valor.required' => 'Preencha o valor a monitorar.',
-            'valor.regex' => 'Informe apenas os números da OAB.',
+            'valor.regex' => 'Número da OAB inválido. Ex.: 12345 ou 12345-A.',
             'valor.digits' => 'O número do processo deve ter 20 dígitos (padrão CNJ).',
             'valor.min' => 'Digite ao menos 3 letras do nome.',
             'valor.max' => 'Nome muito longo.',

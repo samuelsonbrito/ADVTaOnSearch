@@ -7,8 +7,8 @@ use App\Models\User;
 use App\Notifications\Channels\WhatsAppChannel;
 use App\Notifications\NovasComunicacoes;
 use App\Services\Djen\Contracts\ComunicacaoGateway;
+use App\Services\Djen\Exceptions\DjenBadRequestException;
 use App\Services\Djen\Exceptions\DjenBlockedException;
-use App\Services\Djen\Exceptions\DjenMappingPendingException;
 use App\Services\Djen\Exceptions\DjenRateLimitedException;
 use App\Services\Djen\Exceptions\DjenUnavailableException;
 use App\Services\Monitoramento\MonitorarAlvo;
@@ -99,7 +99,7 @@ it('falha sem novas tentativas em erros permanentes', function (Throwable $erro)
 
     $job->handle(app(MonitorarAlvo::class));
 })->with([
-    'mapeamento pendente' => [new DjenMappingPendingException],
+    'requisição inválida' => [new DjenBadRequestException('422', 422)],
     'bloqueado' => [new DjenBlockedException('403', 403)],
 ]);
 

@@ -6,6 +6,7 @@ use App\Enums\FormatoExportacao;
 use App\Enums\OrigemExportacao;
 use App\Http\Requests\ConsultaRequest;
 use App\Models\Alerta;
+use App\Support\Oab;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -41,7 +42,7 @@ class StoreExportacaoRequest extends FormRequest
         return $comum + match ($this->origem()) {
             OrigemExportacao::Consulta => [
                 // Mesmas regras da Consulta, aplicadas aos filtros salvos.
-                'filtros.oab' => ['nullable', 'regex:/^\d{1,8}$/'],
+                'filtros.oab' => ['nullable', 'regex:'.Oab::REGEX],
                 'filtros.uf' => ['nullable', Rule::in(ConsultaRequest::UFS)],
                 'filtros.parte' => ['nullable', 'string', 'min:3', 'max:120'],
                 'filtros.advogado' => ['nullable', 'string', 'min:3', 'max:120'],

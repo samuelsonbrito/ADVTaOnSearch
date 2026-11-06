@@ -7,7 +7,6 @@ use App\Models\MonitoringTarget;
 use App\Notifications\NovasComunicacoes;
 use App\Services\Djen\Exceptions\DjenBadRequestException;
 use App\Services\Djen\Exceptions\DjenBlockedException;
-use App\Services\Djen\Exceptions\DjenMappingPendingException;
 use App\Services\Djen\Exceptions\DjenRateLimitedException;
 use App\Services\Monitoramento\MonitorarAlvo;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -60,7 +59,7 @@ class MonitorarAlvoJob implements ShouldQueue
             $this->release($e->retryAfterSeconds ?? 60);
 
             return;
-        } catch (DjenMappingPendingException|DjenBlockedException|DjenBadRequestException $e) {
+        } catch (DjenBlockedException|DjenBadRequestException $e) {
             // Não adianta tentar de novo agora.
             $this->fail($e);
 

@@ -6,7 +6,12 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cnjCompleto, mascaraCnj, somenteDigitos } from '@/lib/cnj';
+import {
+    cnjCompleto,
+    mascaraCnj,
+    normalizarOab,
+    somenteDigitos,
+} from '@/lib/cnj';
 import type { FiltrosConsulta, Tribunal } from '@/types/djen';
 
 const props = withDefaults(
@@ -42,7 +47,7 @@ function normalizado(): FiltrosConsulta {
     const valor = (v: string) => (v.trim() === '' ? null : v.trim());
 
     return {
-        oab: valor(somenteDigitos(form.oab)),
+        oab: valor(normalizarOab(form.oab)),
         uf: valor(form.uf),
         parte: valor(form.parte),
         advogado: valor(form.advogado),
@@ -144,9 +149,9 @@ defineExpose({ form });
                     id="filtro-oab"
                     v-model="form.oab"
                     name="oab"
-                    inputmode="numeric"
+                    autocapitalize="characters"
                     autocomplete="off"
-                    placeholder="Ex.: 12345"
+                    placeholder="Ex.: 12345 ou 12345-A"
                     :aria-invalid="Boolean(erros.oab)"
                     @update:model-value="buscarComDebounce"
                 />

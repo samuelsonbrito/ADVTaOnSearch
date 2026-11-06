@@ -8,7 +8,6 @@ use App\Http\Resources\Djen\TribunalResource;
 use App\Services\Djen\Contracts\ComunicacaoGateway;
 use App\Services\Djen\Exceptions\DjenBlockedException;
 use App\Services\Djen\Exceptions\DjenException;
-use App\Services\Djen\Exceptions\DjenMappingPendingException;
 use App\Services\Djen\Exceptions\DjenRateLimitedException;
 use App\Services\Djen\Exceptions\DjenUnavailableException;
 use Inertia\Inertia;
@@ -74,12 +73,9 @@ class ConsultaController extends Controller
      */
     private static function erro(DjenException $e): array
     {
-        if (! $e instanceof DjenMappingPendingException) {
-            report($e);
-        }
+        report($e);
 
         return match (true) {
-            $e instanceof DjenMappingPendingException => ['tipo' => 'pendente', 'mensagem' => $e->getMessage()],
             $e instanceof DjenRateLimitedException => ['tipo' => 'limite', 'mensagem' => 'Muitas consultas ao CNJ em pouco tempo. Aguarde um minuto e tente de novo.'],
             $e instanceof DjenBlockedException => ['tipo' => 'bloqueado', 'mensagem' => 'O CNJ recusou o acesso a partir deste servidor. Tente novamente mais tarde.'],
             $e instanceof DjenUnavailableException => ['tipo' => 'indisponivel', 'mensagem' => 'O serviço do CNJ está fora do ar ou muito lento no momento. Tente novamente em alguns minutos.'],

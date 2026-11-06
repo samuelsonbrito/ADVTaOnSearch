@@ -159,6 +159,14 @@ describe('alvos', function () {
         'duplicado' => [['tipo' => 'oab', 'valor' => '999', 'uf' => 'SP'], 'valor'],
     ]);
 
+    it('aceita OAB com letra, como a API usa', function () {
+        $this->actingAs($this->user)
+            ->post(route('monitoramento.alvos.store'), ['tipo' => 'oab', 'valor' => ' 20413-o ', 'uf' => 'MT'])
+            ->assertSessionHasNoErrors();
+
+        expect($this->user->monitoringTargets()->sole()->valor)->toBe('20413-O');
+    });
+
     it('permite a mesma OAB em UFs diferentes', function () {
         MonitoringTarget::factory()->for($this->user)->oab('999', 'SP')->create();
 
