@@ -13,6 +13,9 @@ return [
     |
     */
 
+    // Fonte das comunicações: "api" (Comunica API) ou "fake" (dados de exemplo).
+    'gateway' => env('DJEN_GATEWAY', 'api'),
+
     'base_url' => rtrim((string) env('DJEN_BASE_URL', 'https://comunicaapi.pje.jus.br/api/v1'), '/'),
 
     'user_agent' => env('DJEN_USER_AGENT', 'AdvTaOnSearch/1.0'),

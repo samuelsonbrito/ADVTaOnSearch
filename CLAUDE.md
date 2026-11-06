@@ -83,6 +83,28 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 - Testes: `Http::preventStrayRequests()` + `Sleep::fake()`; corpos genéricos
   até a fixture real chegar.
 
+## Aba Consulta
+
+- Rota pública `GET /consulta` (`consulta.index`, `throttle:djen-consulta`); `/` redireciona para ela.
+- Query string do app: `oab, uf, parte, advogado, processo, tribunal, inicio, fim, pagina`.
+  `ConsultaRequest` normaliza (só dígitos em OAB/processo, UF/tribunal em maiúsculas) e,
+  em caso de erro, **não redireciona** (evita loop em link compartilhado): a página
+  recebe `errors` e não consulta.
+- `ConsultaController` → `ComunicacaoGateway::buscar(FiltroConsulta)` → `ResultadoConsulta`
+  → `ResultadoConsultaResource`. Falhas viram a prop `erro {tipo, mensagem}`.
+- Gateways (`DJEN_GATEWAY`): `api` (`DjenApiGateway`, **pendente**: lança
+  `DjenMappingPendingException` até existir a fixture real) e `fake`
+  (`FakeComunicacaoGateway`, 45 comunicações fictícias determinísticas).
+- DTOs do app em `app/Data/Djen/` (contrato da interface, não da API).
+- Inteiro teor: HTML sanitizado no servidor (`App\Support\HtmlSanitizer`, allowlist,
+  sem atributos) antes do `v-html`. `linkDocumento` só aceita http(s).
+- Front: `pages/Consulta/Index.vue` (layout `PublicLayout`), componentes `FiltroBusca`,
+  `CardComunicacao`, `ModalInteiroTeor`, `Paginacao`, `EstadoVazio`,
+  `consulta/SkeletonResultados`. UF e tribunal usam `<select>` nativo.
+- `FiltroBusca`: debounce próprio (700 ms) nos campos de texto; selects/datas buscam na
+  hora. Toda busca imediata **cancela** o debounce pendente (senão ele atropelava a
+  paginação), e o debounce não dispara se os filtros já são os da URL.
+
 ## Configuração
 
 `config/djen.php` (variáveis `DJEN_*` no `.env.example`): base URL, timeout,

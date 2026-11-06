@@ -1,0 +1,190 @@
+<script setup lang="ts">
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { AlertTriangle, RotateCw, SearchX, ScrollText } from '@lucide/vue';
+import { computed, ref, useTemplateRef } from 'vue';
+import CardComunicacao from '@/components/CardComunicacao.vue';
+import SkeletonResultados from '@/components/consulta/SkeletonResultados.vue';
+import EstadoVazio from '@/components/EstadoVazio.vue';
+import FiltroBusca from '@/components/FiltroBusca.vue';
+import ModalInteiroTeor from '@/components/ModalInteiroTeor.vue';
+import Paginacao from '@/components/Paginacao.vue';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import type {
+    Comunicacao,
+    ConsultaPageProps,
+    FiltrosConsulta,
+} from '@/types/djen';
+
+const props = defineProps<ConsultaPageProps>();
+
+const page = usePage();
+const erros = computed(
+    () =>
+        (page.props.errors ?? {}) as Partial<
+            Record<keyof FiltrosConsulta, string>
+        >,
+);
+
+const carregando = ref(false);
+const selecionada = ref<Comunicacao | null>(null);
+const modalAberto = ref(false);
+const topoResultados = useTemplateRef<HTMLElement>('topoResultados');
+
+const filtrosAtuais = computed<FiltrosConsulta>(() => props.filtros);
+
+function visitar(filtros: FiltrosConsulta, pagina = 1) {
+    const query: Record<string, string | number> = {};
+
+    for (const [chave, valor] of Object.entries(filtros)) {
+        if (valor !== null && valor !== '') {
+            query[chave] = valor;
+        }
+    }
+
+    if (pagina > 1) {
+        query.pagina = pagina;
+    }
+
+    router.get(route('consulta.index'), query, {
+        preserveState: true,
+        preserveScroll: true,
+        onStart: () => (carregando.value = true),
+        onFinish: () => (carregando.value = false),
+    });
+}
+
+function mudarPagina(pagina: number) {
+    visitar(filtrosAtuais.value, pagina);
+    topoResultados.value?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+    });
+}
+
+function abrirInteiroTeor(comunicacao: Comunicacao) {
+    selecionada.value = comunicacao;
+    modalAberto.value = true;
+}
+
+function tentarNovamente() {
+    router.reload({
+        onStart: () => (carregando.value = true),
+        onFinish: () => (carregando.value = false),
+    });
+}
+
+const total = computed(() => props.resultados?.meta.total ?? 0);
+const resumo = computed(() =>
+    total.value === 1
+        ? '1 comunicação encontrada'
+        : `${total.value.toLocaleString('pt-BR')} comunicações encontradas`,
+);
+</script>
+
+<template>
+    <Head title="Consulta de comunicações" />
+
+    <div class="grid gap-6">
+        <div>
+            <h1 class="text-2xl font-semibold tracking-tight">
+                Consulta de comunicações processuais
+            </h1>
+            <p class="mt-1 text-sm text-muted-foreground">
+                Intimações, citações e editais publicados no DJEN. Busque por
+                OAB, parte, advogado, processo ou tribunal.
+            </p>
+        </div>
+
+        <FiltroBusca
+            :filtros="filtros"
+            :tribunais="tribunais"
+            :ufs="ufs"
+            :erros="erros"
+            :carregando="carregando"
+            @buscar="visitar"
+        />
+
+        <section
+            ref="topoResultados"
+            aria-live="polite"
+            class="grid scroll-mt-4 gap-4"
+        >
+            <SkeletonResultados v-if="carregando" />
+
+            <Alert
+                v-else-if="erro"
+                variant="destructive"
+                data-testid="erro-api"
+            >
+                <AlertTriangle class="size-4" />
+                <AlertTitle>
+                    {{
+                        erro.tipo === 'pendente'
+                            ? 'Integração em implantação'
+                            : 'Não foi possível consultar o CNJ'
+                    }}
+                </AlertTitle>
+                <AlertDescription>
+                    <p>{{ erro.mensagem }}</p>
+                    <Button
+                        v-if="erro.tipo !== 'pendente'"
+                        variant="outline"
+                        size="sm"
+                        class="mt-3"
+                        @click="tentarNovamente"
+                    >
+                        <RotateCw class="size-4" aria-hidden="true" />
+                        Tentar novamente
+                    </Button>
+                </AlertDescription>
+            </Alert>
+
+            <template v-else-if="resultados">
+                <EstadoVazio
+                    v-if="resultados.data.length === 0"
+                    titulo="Nenhuma comunicação encontrada"
+                    descricao="Revise os filtros ou amplie o período de disponibilização."
+                >
+                    <template #icone><SearchX class="size-10" /></template>
+                </EstadoVazio>
+
+                <template v-else>
+                    <p
+                        class="text-sm text-muted-foreground"
+                        data-testid="resumo"
+                    >
+                        {{ resumo }} · página {{ resultados.meta.pagina }} de
+                        {{ resultados.meta.ultimaPagina }}
+                    </p>
+
+                    <div class="grid gap-4">
+                        <CardComunicacao
+                            v-for="c in resultados.data"
+                            :key="c.hash"
+                            :comunicacao="c"
+                            @ver-inteiro-teor="abrirInteiroTeor"
+                        />
+                    </div>
+
+                    <Paginacao
+                        :pagina="resultados.meta.pagina"
+                        :ultima-pagina="resultados.meta.ultimaPagina"
+                        :desabilitado="carregando"
+                        @mudar="mudarPagina"
+                    />
+                </template>
+            </template>
+
+            <EstadoVazio
+                v-else
+                titulo="Faça sua primeira busca"
+                descricao="Informe ao menos um filtro: OAB e UF, nome da parte, nome do advogado, número do processo ou tribunal."
+            >
+                <template #icone><ScrollText class="size-10" /></template>
+            </EstadoVazio>
+        </section>
+    </div>
+
+    <ModalInteiroTeor v-model:open="modalAberto" :comunicacao="selecionada" />
+</template>

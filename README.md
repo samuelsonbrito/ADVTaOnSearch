@@ -4,8 +4,9 @@ Consulta, monitoramento e exportação de comunicações processuais (intimaçõ
 citações e editais) publicadas no **DJEN – Diário de Justiça Eletrônico
 Nacional**, via Comunica API do PJe (CNJ).
 
-> Em construção. Fase 1 (setup) e Fase 2 parcial (`DjenClient`) concluídas.
-> DTOs e parsing aguardam uma resposta real da API.
+> Em construção. Fases 1, 2 (parcial) e 3 concluídas. A tradução da resposta da
+> API do CNJ aguarda uma amostra real; até lá, use `DJEN_GATEWAY=fake` para ver a
+> aba Consulta com dados de exemplo.
 
 ## Requisitos
 

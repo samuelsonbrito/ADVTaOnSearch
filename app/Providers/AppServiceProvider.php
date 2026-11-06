@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Services\Djen\Contracts\ComunicacaoGateway;
 use App\Services\Djen\DjenClient;
+use App\Services\Djen\Gateways\DjenApiGateway;
+use App\Services\Djen\Gateways\FakeComunicacaoGateway;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
@@ -26,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
             $app->make(CacheRepository::class),
             $app['config']->get('djen'),
         ));
+
+        $this->app->singleton(ComunicacaoGateway::class, fn ($app): ComunicacaoGateway => match ($app['config']->get('djen.gateway')) {
+            'fake' => new FakeComunicacaoGateway,
+            default => $app->make(DjenApiGateway::class),
+        });
     }
 
     /**
