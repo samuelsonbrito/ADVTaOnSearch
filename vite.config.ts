@@ -7,10 +7,15 @@ import { defineConfig, lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
     plugins: lazyPlugins(() => [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.ts'],
-            refresh: true,
-        }),
+        // O plugin do Laravel recusa rodar com CI=true e não é usado pelo Vitest.
+        ...(process.env.VITEST
+            ? []
+            : [
+                  laravel({
+                      input: ['resources/css/app.css', 'resources/js/app.ts'],
+                      refresh: true,
+                  }),
+              ]),
         inertia(),
         tailwindcss(),
         vue({
