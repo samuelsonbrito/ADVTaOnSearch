@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\Djen\DjenClient;
 use App\Services\Djen\Exceptions\DjenBlockedException;
 use App\Services\Djen\Exceptions\DjenException;
+use App\Services\Rastreio\Rastreador;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -26,6 +27,8 @@ class DiagnosticoDjen extends Command
 
     public function handle(DjenClient $client): int
     {
+        Rastreador::origem('comando');
+
         $this->checar('Banco de dados', function (): string {
             DB::select('select 1');
 

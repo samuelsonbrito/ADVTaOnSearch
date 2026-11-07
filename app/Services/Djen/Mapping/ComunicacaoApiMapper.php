@@ -26,7 +26,7 @@ final class ComunicacaoApiMapper
      *
      * @throws DjenUnexpectedResponseException
      */
-    public function resultado(array $json, int $pagina, int $porPagina): ResultadoConsulta
+    public function resultado(array $json, int $pagina, int $porPagina, bool $doCache = false): ResultadoConsulta
     {
         if (! isset($json['items']) || ! is_array($json['items'])) {
             throw new DjenUnexpectedResponseException('A API do CNJ respondeu sem a lista de comunicações (items).');
@@ -42,7 +42,7 @@ final class ComunicacaoApiMapper
 
         $total = is_int($json['count'] ?? null) ? $json['count'] : count($comunicacoes);
 
-        return new ResultadoConsulta($comunicacoes, $total, $pagina, $porPagina);
+        return new ResultadoConsulta($comunicacoes, $total, $pagina, $porPagina, $doCache);
     }
 
     /**

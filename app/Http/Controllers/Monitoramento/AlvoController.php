@@ -8,6 +8,8 @@ use App\Http\Requests\Monitoramento\UpdateMonitoringTargetRequest;
 use App\Jobs\MonitorarAlvoJob;
 use App\Models\Communication;
 use App\Models\MonitoringTarget;
+use App\Services\Rastreio\Rastreador;
+use App\Support\Rastreio\TipoEvento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +18,10 @@ use Inertia\Inertia;
 
 class AlvoController extends Controller
 {
-    public function store(StoreMonitoringTargetRequest $request): RedirectResponse
+    public function store(StoreMonitoringTargetRequest $request, Rastreador $rastreador): RedirectResponse
     {
         $alvo = $request->user()->monitoringTargets()->create($request->validated());
+        $rastreador->evento(TipoEvento::ALVO_CRIADO, ['alvo_id' => $alvo->id, 'tipo' => $alvo->tipo->value], request: $request);
 
         // Primeira verificação já em segundo plano.
         MonitorarAlvoJob::dispatch($alvo);
@@ -28,11 +31,12 @@ class AlvoController extends Controller
         return back();
     }
 
-    public function update(UpdateMonitoringTargetRequest $request, MonitoringTarget $alvo): RedirectResponse
+    public function update(UpdateMonitoringTargetRequest $request, MonitoringTarget $alvo, Rastreador $rastreador): RedirectResponse
     {
         $alvo->update($request->validated());
 
         if ($request->has('ativo')) {
+            $rastreador->evento($alvo->ativo ? TipoEvento::ALVO_RETOMADO : TipoEvento::ALVO_PAUSADO, ['alvo_id' => $alvo->id], request: $request);
             Inertia::flash('toast', ['type' => 'success', 'message' => $alvo->ativo ? 'Monitoramento retomado.' : 'Monitoramento pausado.']);
         }
 
@@ -40,9 +44,11 @@ class AlvoController extends Controller
     }
 
     /** LGPD: exclui o alvo, seus alertas e as comunicações que ficarem órfãs. */
-    public function destroy(Request $request, MonitoringTarget $alvo): RedirectResponse
+    public function destroy(Request $request, MonitoringTarget $alvo, Rastreador $rastreador): RedirectResponse
     {
         Gate::authorize('delete', $alvo);
+
+        $rastreador->evento(TipoEvento::ALVO_EXCLUIDO, ['alvo_id' => $alvo->id, 'tipo' => $alvo->tipo->value], request: $request);
 
         DB::transaction(function () use ($alvo): void {
             $alvo->delete();
@@ -54,7 +60,7 @@ class AlvoController extends Controller
         return to_route('monitoramento.index');
     }
 
-    public function verificar(Request $request, MonitoringTarget $alvo): RedirectResponse
+    public function verificar(Request $request, MonitoringTarget $alvo, Rastreador $rastreador): RedirectResponse
     {
         Gate::authorize('update', $alvo);
 
@@ -65,6 +71,7 @@ class AlvoController extends Controller
         }
 
         MonitorarAlvoJob::dispatch($alvo);
+        $rastreador->evento(TipoEvento::ALVO_VERIFICACAO_MANUAL, ['alvo_id' => $alvo->id], request: $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Verificação iniciada. Você será avisado se houver novidades.']);
 

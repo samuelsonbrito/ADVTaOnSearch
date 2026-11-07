@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\ExportacaoController;
 use App\Http\Controllers\Monitoramento\AlertaController;
@@ -41,6 +42,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('{exportacao}/download', 'download')->name('download');
         Route::delete('{exportacao}', 'destroy')->name('destroy');
     });
+});
+
+// Área administrativa interna: uso, rastreio e saúde da integração com o CNJ.
+Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', Admin\DashboardController::class)->name('dashboard');
+    Route::get('buscas', Admin\BuscasController::class)->name('buscas');
+    Route::get('atividade', Admin\AtividadeController::class)->name('atividade');
+    Route::get('usuarios', Admin\UsuariosController::class)->name('usuarios');
+    Route::get('cnj', Admin\ChamadasCnjController::class)->name('cnj');
 });
 
 require __DIR__.'/settings.php';

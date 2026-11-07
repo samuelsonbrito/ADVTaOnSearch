@@ -20,6 +20,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $name
  * @property string $email
  * @property string|null $whatsapp
+ * @property bool $is_admin
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -35,6 +36,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /** Igual ao default do banco, para valer também em modelos recém-criados. */
+    protected $attributes = [
+        'is_admin' => false,
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -74,6 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'is_admin' => 'boolean',
         ];
     }
 }

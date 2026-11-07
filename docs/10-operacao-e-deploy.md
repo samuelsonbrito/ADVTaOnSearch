@@ -41,10 +41,10 @@ Atualizações:
 
 Definidas em `routes/console.php`:
 
-| Quando                                           | Comando                                                | Para quê                             |
-| ------------------------------------------------ | ------------------------------------------------------ | ------------------------------------ |
-| `DJEN_MONITORING_TIME` (07:00, `America/Manaus`) | `djen:monitorar`                                       | Enfileira a verificação de cada alvo |
-| 03:17 todo dia                                   | `model:prune --model=Communication --model=Exportacao` | LGPD: órfãs e exportações expiradas  |
+| Quando                                           | Comando                                              | Para quê                                             |
+| ------------------------------------------------ | ---------------------------------------------------- | ---------------------------------------------------- |
+| `DJEN_MONITORING_TIME` (07:00, `America/Manaus`) | `djen:monitorar`                                     | Enfileira a verificação de cada alvo                 |
+| 03:17 todo dia                                   | `model:prune` (comunicações, exportações e rastreio) | LGPD: órfãs, exportações expiradas e rastreio antigo |
 
 O monitoramento usa `withoutOverlapping()` e `onOneServer()`. Com mais de um servidor,
 o cache precisa ser compartilhado (Redis).
@@ -57,6 +57,7 @@ o cache precisa ser compartilhado (Redis).
 | `php artisan djen:verificar-filtros --oab= --uf= [--processo= --parte= --advogado= --tribunal= --data=]` | Confere na API real se cada filtro funciona. **Rode após o primeiro deploy.**                                         |
 | `php artisan djen:monitorar [--alvo=ID]... [--sync]`                                                     | Monitora agora (fila ou síncrono).                                                                                    |
 | `php artisan schedule:test --name=djen:monitorar`                                                        | Dispara a tarefa agendada como o scheduler faria.                                                                     |
+| `php artisan admin:promover email [--remover]`                                                           | Dá ou tira o acesso à área administrativa (`/admin`).                                                                 |
 | `php artisan djen:capturar-fixture [...]`                                                                | Salva uma resposta real como fixture (anonimize antes de commitar).                                                   |
 
 `djen:diagnostico` avisa (em amarelo) sobre configurações que funcionam mas
@@ -86,6 +87,8 @@ provavelmente não são o que você quer em produção: fila `sync`, e-mail `log
 | `DJEN_EXPORT_LIMITE_SINCRONO`                     | 100                                     | Até quantos itens gera na hora                        |
 | `DJEN_EXPORT_MAX_ITENS`                           | 2000                                    | Itens por exportação                                  |
 | `DJEN_EXPORT_DIAS_RETENCAO`                       | 7                                       | Dias até apagar exportações                           |
+| `DJEN_RASTREIO_ATIVO`                             | `true`                                  | Rastreio da área administrativa                       |
+| `DJEN_RASTREIO_DIAS_RETENCAO`                     | 180                                     | Dias até apagar buscas, chamadas e eventos rastreados |
 | `DJEN_WHATSAPP_DRIVER`                            | `log`                                   | Driver do WhatsApp                                    |
 
 O app funciona com `php artisan optimize` (config em cache): nenhum `env()` fora de
@@ -100,6 +103,9 @@ uns 20 minutos. A API do CNJ anuncia `x-ratelimit-limit: 20`; subir o nosso limi
 perto disso deixa pouca folga para a Consulta pública.
 
 ## Saúde e logs
+
+- **Área administrativa** (`/admin`): uso, buscas, atividade, contas e cada chamada ao CNJ
+  (latência, falhas, limite restante). Ver [11 · Administração e rastreio](11-administracao-e-rastreio.md).
 
 - **Health check**: `GET /up`.
 - **Logs**: `storage/logs/laravel.log` (erros do CNJ são registrados com `report()`) e

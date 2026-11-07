@@ -92,6 +92,13 @@
 }
 
 :root {
+    /* Gráficos da área administrativa (validados com o validador de paleta). */
+    --viz-serie: #2a78d6;
+    --viz-bom: #0ca30c;
+    --viz-alerta: #fab219;
+    --viz-critico: #d03b3b;
+    --viz-neutro: #a3a29c;
+
     --background: hsl(0 0% 100%);
     --foreground: hsl(0 0% 3.9%);
     --card: hsl(0 0% 100%);
@@ -129,6 +136,9 @@
 }
 
 .dark {
+    --viz-serie: #3987e5;
+    --viz-neutro: #6b6a65;
+
     --background: hsl(0 0% 3.9%);
     --foreground: hsl(0 0% 98%);
     --card: hsl(0 0% 3.9%);

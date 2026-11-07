@@ -68,6 +68,13 @@ return [
         'dias_retencao' => (int) env('DJEN_EXPORT_DIAS_RETENCAO', 7),
     ],
 
+    'rastreio' => [
+        // Registra buscas, chamadas ao CNJ e atividade para a área administrativa.
+        'ativo' => (bool) env('DJEN_RASTREIO_ATIVO', true),
+        // LGPD: registros mais antigos que isso são apagados pelo model:prune diário.
+        'dias_retencao' => (int) env('DJEN_RASTREIO_DIAS_RETENCAO', 180),
+    ],
+
     'whatsapp' => [
         // Drivers disponíveis: log. (Evolution API, Z-API e Meta Cloud API: a implementar.)
         'driver' => env('DJEN_WHATSAPP_DRIVER', 'log'),
