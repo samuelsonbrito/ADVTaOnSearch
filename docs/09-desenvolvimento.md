@@ -73,6 +73,24 @@ npm run build            # build de produção
 composer ci:check        # tudo acima + Vitest + Pest, igual ao CI
 ```
 
+## Fluxo de Git
+
+| Regra          | Como                                                                                                     |
+| -------------- | -------------------------------------------------------------------------------------------------------- |
+| Branch padrão  | `main` (protegida pelo CI; nada é commitado direto nela)                                                 |
+| Nome da branch | `tipo/nome-em-kebab-case`: `feature/area-administrativa`, `fix/paginacao-consulta`, `docs/guia-de-marca` |
+| Mensagem       | [Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/): `tipo(escopo): descrição`     |
+| Tipos          | `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`, `ci`, `build`                       |
+| Integração     | PR para a `main`, CI verde, merge                                                                        |
+
+Exemplos:
+
+```text
+feat(monitoramento): permite pausar todos os alvos de uma vez
+fix(exportacao): mantém a ordem das páginas selecionadas
+docs: explica a retenção do rastreio
+```
+
 ## CI
 
 `.github/workflows/tests.yml` roda em todo PR e em push na `main`:

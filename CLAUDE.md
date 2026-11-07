@@ -54,6 +54,19 @@ composer ci:check                # tudo acima, como no CI
 
 Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build`, commit.
 
+## Fluxo de Git (obrigatório)
+
+- Branch padrão: **`main`**. Nunca commitar direto nela.
+- Toda mudança nasce em uma branch a partir da `main`, com prefixo pelo tipo e nome do recurso em
+  kebab-case: `feature/nome-do-recurso`, `fix/descricao-do-bug`, `docs/assunto`,
+  `refactor/...`, `chore/...`, `test/...`.
+- Commits em **Conventional Commits**, em português: `tipo(escopo opcional): descrição no imperativo`.
+  Tipos: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`, `ci`, `build`.
+  Ex.: `feat(admin): adiciona dashboard de buscas`, `fix(consulta): corrige paginação com debounce`.
+  Mudança incompatível: `!` após o tipo e rodapé `BREAKING CHANGE:`.
+- Concluído o desenvolvimento (testes e checagens verdes): abrir PR para a `main`, esperar o CI
+  passar e fazer o merge. O título do PR também segue Conventional Commits.
+
 ## Convenções
 
 - Código e nomes de domínio em português quando refletem o DJEN (`Comunicacao`,
