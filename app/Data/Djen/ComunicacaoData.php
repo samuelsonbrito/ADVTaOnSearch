@@ -7,9 +7,9 @@ use Carbon\CarbonImmutable;
 /**
  * Comunicação processual no formato do app.
  *
- * Os campos seguem o que a interface precisa exibir (definido no escopo do
- * projeto). A tradução da resposta da Comunica API para este DTO será feita
- * a partir da fixture real; nada aqui assume nomes de campos da API.
+ * Os campos seguem o que a interface precisa exibir. A tradução a partir da
+ * resposta da Comunica API fica em ComunicacaoApiMapper; nada aqui assume
+ * nomes de campos da API.
  */
 final readonly class ComunicacaoData
 {

@@ -6,7 +6,7 @@ use Database\Seeders\DatabaseSeeder;
 it('cria a usuária de demonstração com alvos', function () {
     $this->seed(DatabaseSeeder::class);
 
-    $user = User::firstWhere('email', 'demo@advtaon.test');
+    $user = User::firstWhere('email', 'demo@faroljuris.test');
     expect($user)->not->toBeNull()
         ->and($user->hasVerifiedEmail())->toBeTrue()
         ->and($user->monitoringTargets()->count())->toBe(2);

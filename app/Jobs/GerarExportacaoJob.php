@@ -8,6 +8,8 @@ use App\Models\Exportacao;
 use App\Notifications\ExportacaoConcluida;
 use App\Services\Djen\Exceptions\DjenException;
 use App\Services\Exportacao\GeradorExportacao;
+use App\Services\Rastreio\Rastreador;
+use App\Support\Rastreio\TipoEvento;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\RateLimited;
@@ -40,6 +42,7 @@ class GerarExportacaoJob implements ShouldQueue
 
     public function handle(GeradorExportacao $gerador): void
     {
+        Rastreador::origem('exportacao');
         $gerador->gerar($this->exportacao);
 
         $this->exportacao->user->notify(new ExportacaoConcluida($this->exportacao->fresh()));
@@ -47,6 +50,11 @@ class GerarExportacaoJob implements ShouldQueue
 
     public function failed(?Throwable $e): void
     {
+        app(Rastreador::class)->evento(TipoEvento::EXPORTACAO_FALHOU, [
+            'exportacao_id' => $this->exportacao->id,
+            'erro' => $e ? class_basename($e) : null,
+        ], $this->exportacao->user);
+
         $this->exportacao->update([
             'status' => StatusExportacao::Falhou,
             'erro' => $e instanceof DjenException

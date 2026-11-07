@@ -18,7 +18,7 @@ return [
 
     'base_url' => rtrim((string) env('DJEN_BASE_URL', 'https://comunicaapi.pje.jus.br/api/v1'), '/'),
 
-    'user_agent' => env('DJEN_USER_AGENT', 'AdvTaOnSearch/1.0'),
+    'user_agent' => env('DJEN_USER_AGENT', 'FarolJuris/1.0'),
 
     // Segundos.
     'timeout' => (int) env('DJEN_TIMEOUT', 20),
@@ -66,6 +66,13 @@ return [
         'max_itens' => (int) env('DJEN_EXPORT_MAX_ITENS', 2000),
         // LGPD: arquivos e registros são apagados depois de N dias.
         'dias_retencao' => (int) env('DJEN_EXPORT_DIAS_RETENCAO', 7),
+    ],
+
+    'rastreio' => [
+        // Registra buscas, chamadas ao CNJ e atividade para a área administrativa.
+        'ativo' => (bool) env('DJEN_RASTREIO_ATIVO', true),
+        // LGPD: registros mais antigos que isso são apagados pelo model:prune diário.
+        'dias_retencao' => (int) env('DJEN_RASTREIO_DIAS_RETENCAO', 180),
     ],
 
     'whatsapp' => [

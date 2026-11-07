@@ -28,6 +28,10 @@
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
 
+    --color-marca: var(--marca-marinho);
+    --color-marca-ambar: var(--marca-ambar);
+    --color-marca-claro: var(--marca-claro);
+
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
 
@@ -92,76 +96,96 @@
 }
 
 :root {
-    --background: hsl(0 0% 100%);
-    --foreground: hsl(0 0% 3.9%);
-    --card: hsl(0 0% 100%);
-    --card-foreground: hsl(0 0% 3.9%);
-    --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(0 0% 3.9%);
-    --primary: oklch(0.43 0.11 238);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: hsl(0 0% 92.1%);
-    --secondary-foreground: hsl(0 0% 9%);
-    --muted: hsl(0 0% 96.1%);
-    --muted-foreground: hsl(0 0% 45.1%);
-    --accent: hsl(0 0% 96.1%);
-    --accent-foreground: hsl(0 0% 9%);
+    /* Marca FarolJuris: azul-marinho (confiança) e âmbar (a luz do farol). */
+    --marca-marinho: #0f2a44;
+    --marca-ambar: #f5a524;
+    --marca-luz: #ffe7a8;
+    --marca-claro: #f4f7fb;
+    /* "Juris" no nome escrito: azul-acinzentado (claro) / azul-claro (escuro). */
+    --marca-juris: #3a5f86;
+
+    /* Gráficos da área administrativa (validados com o validador de paleta). */
+    --viz-serie: #2a78d6;
+    --viz-bom: #0ca30c;
+    --viz-alerta: #fab219;
+    --viz-critico: #d03b3b;
+    --viz-neutro: #a3a29c;
+
+    --background: #ffffff;
+    --foreground: #0f1b2a;
+    --card: #ffffff;
+    --card-foreground: #0f1b2a;
+    --popover: #ffffff;
+    --popover-foreground: #0f1b2a;
+    --primary: var(--marca-marinho);
+    --primary-foreground: #ffffff;
+    --secondary: #eef2f7;
+    --secondary-foreground: var(--marca-marinho);
+    --muted: #f3f6fa;
+    --muted-foreground: #5b6b7f;
+    --accent: #eef2f7;
+    --accent-foreground: var(--marca-marinho);
     --destructive: hsl(0 84.2% 60.2%);
     --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 92.8%);
-    --input: hsl(0 0% 89.8%);
-    --ring: oklch(0.43 0.11 238);
+    --border: #e3e8ef;
+    --input: #d8dfe8;
+    --ring: #3a5f86;
     --chart-1: hsl(12 76% 61%);
     --chart-2: hsl(173 58% 39%);
     --chart-3: hsl(197 37% 24%);
     --chart-4: hsl(43 74% 66%);
     --chart-5: hsl(27 87% 67%);
     --radius: 0.5rem;
-    --sidebar-background: hsl(0 0% 98%);
-    --sidebar-foreground: hsl(240 5.3% 26.1%);
-    --sidebar-primary: oklch(0.43 0.11 238);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: hsl(0 0% 94%);
-    --sidebar-accent-foreground: hsl(0 0% 30%);
-    --sidebar-border: hsl(0 0% 91%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(0 0% 98%);
+    --sidebar-background: #f7f9fc;
+    --sidebar-foreground: #23364d;
+    --sidebar-primary: var(--marca-marinho);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #eaf0f6;
+    --sidebar-accent-foreground: var(--marca-marinho);
+    --sidebar-border: #e3e8ef;
+    --sidebar-ring: #3a5f86;
+    --sidebar: #f7f9fc;
 }
 
+/* Escuro: noite de farol. Fundo azul-marinho profundo e o âmbar como cor principal. */
 .dark {
-    --background: hsl(0 0% 3.9%);
-    --foreground: hsl(0 0% 98%);
-    --card: hsl(0 0% 3.9%);
-    --card-foreground: hsl(0 0% 98%);
-    --popover: hsl(0 0% 3.9%);
-    --popover-foreground: hsl(0 0% 98%);
-    --primary: oklch(0.78 0.1 230);
-    --primary-foreground: oklch(0.2 0.04 240);
-    --secondary: hsl(0 0% 14.9%);
-    --secondary-foreground: hsl(0 0% 98%);
-    --muted: hsl(0 0% 16.08%);
-    --muted-foreground: hsl(0 0% 63.9%);
-    --accent: hsl(0 0% 14.9%);
-    --accent-foreground: hsl(0 0% 98%);
+    --marca-juris: #9db8d6;
+    --viz-serie: #3987e5;
+    --viz-neutro: #6b6a65;
+
+    --background: #0b1726;
+    --foreground: #eef3f8;
+    --card: #0f1e30;
+    --card-foreground: #eef3f8;
+    --popover: #0f1e30;
+    --popover-foreground: #eef3f8;
+    --primary: var(--marca-ambar);
+    --primary-foreground: var(--marca-marinho);
+    --secondary: #182a40;
+    --secondary-foreground: #eef3f8;
+    --muted: #16273b;
+    --muted-foreground: #9aacbf;
+    --accent: #1a2e46;
+    --accent-foreground: #eef3f8;
     --destructive: hsl(0 84% 60%);
     --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 14.9%);
-    --input: hsl(0 0% 14.9%);
-    --ring: oklch(0.78 0.1 230);
+    --border: #22364d;
+    --input: #2a3f57;
+    --ring: var(--marca-ambar);
     --chart-1: hsl(220 70% 50%);
     --chart-2: hsl(160 60% 45%);
     --chart-3: hsl(30 80% 55%);
     --chart-4: hsl(280 65% 60%);
     --chart-5: hsl(340 75% 55%);
-    --sidebar-background: hsl(0 0% 7%);
-    --sidebar-foreground: hsl(0 0% 95.9%);
-    --sidebar-primary: oklch(0.78 0.1 230);
-    --sidebar-primary-foreground: oklch(0.2 0.04 240);
-    --sidebar-accent: hsl(0 0% 15.9%);
-    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-border: hsl(0 0% 15.9%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(240 5.9% 10%);
+    --sidebar-background: #0a1522;
+    --sidebar-foreground: #dce5ef;
+    --sidebar-primary: var(--marca-ambar);
+    --sidebar-primary-foreground: var(--marca-marinho);
+    --sidebar-accent: #16273b;
+    --sidebar-accent-foreground: #eef3f8;
+    --sidebar-border: #1c2f45;
+    --sidebar-ring: var(--marca-ambar);
+    --sidebar: #0a1522;
 }
 
 @layer base {

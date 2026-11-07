@@ -2,12 +2,15 @@
 
 namespace App\Services\Djen;
 
+use App\Events\ChamadaDjenConcluida;
 use App\Services\Djen\Exceptions\DjenBadRequestException;
 use App\Services\Djen\Exceptions\DjenBlockedException;
+use App\Services\Djen\Exceptions\DjenException;
 use App\Services\Djen\Exceptions\DjenRateLimitedException;
 use App\Services\Djen\Exceptions\DjenUnavailableException;
 use App\Services\Djen\Exceptions\DjenUnexpectedResponseException;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\PendingRequest;
@@ -22,8 +25,11 @@ use Throwable;
  * exponencial (conexão, 429 e 5xx), tradução de falhas em exceções de
  * domínio e cache das consultas com chave baseada nos filtros.
  *
- * Não conhece os campos da resposta: isso fica para os DTOs, que serão
- * escritos a partir de uma resposta real da API.
+ * Cada requisição real (não as do cache) dispara ChamadaDjenConcluida, que
+ * alimenta o rastreio da área administrativa.
+ *
+ * Não conhece os campos da resposta: a tradução para DTOs fica em
+ * Mapping\ComunicacaoApiMapper.
  */
 class DjenClient
 {
@@ -41,6 +47,7 @@ class DjenClient
         private readonly HttpFactory $http,
         private readonly CacheRepository $cache,
         private readonly array $config,
+        private readonly ?Dispatcher $events = null,
     ) {}
 
     /**
@@ -48,22 +55,61 @@ class DjenClient
      *
      * @param  array<string, scalar|null>  $query
      *
-     * @throws Exceptions\DjenException
+     * @throws DjenException
      */
     public function get(string $path, array $query = []): DjenResponse
     {
         $query = self::normalizeQuery($query);
+        $inicio = hrtime(true);
 
         try {
             $response = $this->request()->get(ltrim($path, '/'), $query);
         } catch (ConnectionException $e) {
+            $this->notificar($path, $query, $inicio, null, 'indisponivel', erro: $e->getMessage());
+
             throw new DjenUnavailableException(
                 'Não foi possível conectar à API do CNJ (timeout ou falha de rede).',
                 previous: $e,
             );
         }
 
-        return $this->toDjenResponse($response);
+        $restante = $response->header('x-ratelimit-remaining');
+        $restante = is_numeric($restante) ? (int) $restante : null;
+
+        try {
+            $resposta = $this->toDjenResponse($response);
+        } catch (DjenException $e) {
+            $this->notificar($path, $query, $inicio, $response->status(), self::resultadoDe($e), null, $restante, $e->getMessage());
+
+            throw $e;
+        }
+
+        $itens = $resposta->json['items'] ?? null;
+        $this->notificar($path, $query, $inicio, $response->status(), 'sucesso', is_array($itens) ? count($itens) : null, $restante);
+
+        return $resposta;
+    }
+
+    /**
+     * @param  array<string, scalar>  $query
+     */
+    private function notificar(string $path, array $query, int $inicio, ?int $status, string $resultado, ?int $itens = null, ?int $restante = null, ?string $erro = null): void
+    {
+        $this->events?->dispatch(new ChamadaDjenConcluida(
+            ltrim($path, '/'), $query, $status, $resultado,
+            (int) round((hrtime(true) - $inicio) / 1_000_000), $itens, $restante, $erro,
+        ));
+    }
+
+    private static function resultadoDe(DjenException $e): string
+    {
+        return match (true) {
+            $e instanceof DjenRateLimitedException => 'limitado',
+            $e instanceof DjenBlockedException => 'bloqueado',
+            $e instanceof DjenUnavailableException => 'indisponivel',
+            $e instanceof DjenBadRequestException => 'recusado',
+            default => 'invalido',
+        };
     }
 
     /**
@@ -72,7 +118,7 @@ class DjenClient
      *
      * @param  array<string, scalar|null>  $query
      *
-     * @throws Exceptions\DjenException
+     * @throws DjenException
      */
     public function getCached(string $path, array $query = []): DjenResponse
     {
@@ -191,7 +237,7 @@ class DjenClient
     }
 
     /**
-     * @throws Exceptions\DjenException
+     * @throws DjenException
      */
     private function toDjenResponse(Response $response): DjenResponse
     {

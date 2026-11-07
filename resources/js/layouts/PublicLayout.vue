@@ -2,11 +2,12 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import MarcaNome from '@/components/MarcaNome.vue';
 import { Button } from '@/components/ui/button';
 
 const page = usePage();
 const usuario = computed(() => page.props.auth?.user ?? null);
-const nome = computed(() => page.props.name ?? 'AdvTaOn Search');
+const nome = computed(() => page.props.name ?? 'FarolJuris');
 </script>
 
 <template>
@@ -20,11 +21,11 @@ const nome = computed(() => page.props.name ?? 'AdvTaOn Search');
                     class="flex items-center gap-2 font-semibold tracking-tight"
                 >
                     <span
-                        class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                        class="flex size-8 items-center justify-center rounded-lg bg-marca text-marca-claro"
                     >
-                        <AppLogoIcon class="size-5" />
+                        <AppLogoIcon class="size-6" />
                     </span>
-                    <span class="hidden sm:inline">{{ nome }}</span>
+                    <MarcaNome class="hidden text-base sm:inline" />
                     <span class="sr-only sm:hidden">{{ nome }}</span>
                 </Link>
 

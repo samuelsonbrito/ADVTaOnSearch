@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             // oab | parte | processo (App\Enums\TipoAlvo)
             $table->string('tipo', 20);
-            // OAB: só dígitos · parte: nome · processo: 20 dígitos
+            // OAB: normalizada (App\Support\Oab, pode ter letra) · parte: nome · processo: 20 dígitos
             $table->string('valor', 120);
             $table->char('uf', 2)->nullable();
             $table->string('apelido', 80)->nullable();

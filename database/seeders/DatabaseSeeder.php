@@ -8,7 +8,8 @@ use Illuminate\Database\Seeder;
 
 /**
  * Dados de demonstração para desenvolvimento local.
- * Login: demo@advtaon.test / password (e-mail já confirmado).
+ * Login: demo@faroljuris.test / password (e-mail já confirmado).
+ * Administrador: admin@faroljuris.test / password (acesso a /admin).
  * Com DJEN_GATEWAY=fake, rode `php artisan djen:monitorar --sync` para gerar alertas.
  */
 class DatabaseSeeder extends Seeder
@@ -25,8 +26,13 @@ class DatabaseSeeder extends Seeder
 
         $user = User::factory()->create([
             'name' => 'Usuária Demo',
-            'email' => 'demo@advtaon.test',
+            'email' => 'demo@faroljuris.test',
         ]);
+
+        User::factory()->create([
+            'name' => 'Administração',
+            'email' => 'admin@faroljuris.test',
+        ])->forceFill(['is_admin' => true])->save();
 
         // OAB presente nos dados fictícios do gateway "fake".
         $user->monitoringTargets()->create(['tipo' => 'oab', 'valor' => '12345', 'uf' => 'AM', 'apelido' => 'Escritório (demo)']);

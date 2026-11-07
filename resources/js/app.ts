@@ -7,7 +7,7 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { ZiggyVue } from 'ziggy-js';
 
-const appName = import.meta.env.VITE_APP_NAME || 'AdvTaOn Search';
+const appName = import.meta.env.VITE_APP_NAME || 'FarolJuris';
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

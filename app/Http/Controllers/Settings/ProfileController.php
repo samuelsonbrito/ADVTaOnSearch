@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Services\Rastreio\Rastreador;
+use App\Support\Rastreio\TipoEvento;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,9 +48,10 @@ class ProfileController extends Controller
     /**
      * Delete the user's profile.
      */
-    public function destroy(ProfileDeleteRequest $request): RedirectResponse
+    public function destroy(ProfileDeleteRequest $request, Rastreador $rastreador): RedirectResponse
     {
         $user = $request->user();
+        $rastreador->evento(TipoEvento::CONTA_EXCLUIDA, ['usuario_id' => $user->id], request: $request);
 
         Auth::logout();
 

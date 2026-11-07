@@ -1,4 +1,4 @@
-# AdvTaOn Search
+# FarolJuris
 
 Consulta, monitoramento e exportação de comunicações processuais (intimações,
 citações e editais) publicadas no **DJEN – Diário de Justiça Eletrônico
@@ -10,10 +10,11 @@ Nacional**, a partir da Comunica API do PJe (CNJ).
 | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Consulta**      | pública | Busca por OAB + UF, parte, advogado, processo (máscara CNJ), tribunal e período. Filtros na URL (link compartilhável), paginação, inteiro teor em modal.                 |
 | **Monitoramento** | login   | Alvos por OAB, parte ou processo. Verificação diária agendada, aviso por e-mail (e WhatsApp, plugável) só das comunicações novas, painel de lidas/não lidas e histórico. |
+| **Administração** | admin   | Área interna (`/admin`): buscas feitas, visitantes, contas, atividade, termos e tribunais mais buscados e a saúde da API do CNJ, com dashboard e filtros por período.    |
 | **Exportações**   | login   | Seleção em lote (Consulta ou Monitoramento) para CSV, Excel ou PDF. Lotes grandes vão para a fila e avisam por e-mail.                                                   |
 
 > [!IMPORTANT]
-> O AdvTaOn chama a Comunica API do CNJ **pelo backend**, e a API **bloqueia IPs fora
+> O FarolJuris chama a Comunica API do CNJ **pelo backend**, e a API **bloqueia IPs fora
 > do Brasil**. Rode o servidor (e os workers) no Brasil. Para desenvolver fora do
 > país, use `DJEN_GATEWAY=fake` (45 comunicações fictícias).
 
@@ -27,6 +28,7 @@ Nacional**, a partir da Comunica API do PJe (CNJ).
 - [Exportação](#exportação)
 - [Dados reais e verificação dos filtros](#dados-reais-e-verificação-dos-filtros)
 - [WhatsApp](#whatsapp)
+- [Área administrativa](#área-administrativa)
 - [LGPD](#lgpd)
 - [Deploy em produção](#deploy-em-produção)
 - [Solução de problemas](#solução-de-problemas)
@@ -39,15 +41,17 @@ Nacional**, a partir da Comunica API do PJe (CNJ).
 - `maatwebsite/excel` (CSV/XLSX) · `barryvdh/laravel-dompdf` (PDF)
 - Pest 4 (back-end) · Vitest + Vue Test Utils (front-end)
 
-Decisões de arquitetura e convenções: [CLAUDE.md](CLAUDE.md).
+Documentação completa (arquitetura, integração com o CNJ, cada aba, dados/LGPD,
+front-end, desenvolvimento e operação): [`docs/`](docs/README.md). Resumo técnico
+para quem mexe no código: [CLAUDE.md](CLAUDE.md).
 
 ## Rodando do zero (Sail)
 
 Requisitos: Docker e Git.
 
 ```bash
-git clone git@github.com:samuelsonbrito/advtaonsearch.git
-cd advtaonsearch
+git clone git@github.com:samuelsonbrito/FarolJuris.git
+cd FarolJuris
 cp .env.example .env
 ```
 
@@ -82,7 +86,8 @@ Pronto:
 
 - App: http://localhost (a página inicial é a Consulta)
 - E-mails: http://localhost:8025 (Mailpit)
-- Login de demonstração: `demo@advtaon.test` / `password`, já com dois alvos
+- Login de demonstração: `demo@faroljuris.test` / `password`, já com dois alvos
+- Administrador: `admin@faroljuris.test` / `password` (acesso a `/admin`)
 
 O `.env.example` vem com `DJEN_GATEWAY=api` (dados reais; exige estar no Brasil). Fora do
 Brasil, troque para `fake`. Para gerar os primeiros alertas da conta de demonstração
@@ -97,7 +102,7 @@ Brasil, troque para `fake`. Para gerar os primeiros alertas da conta de demonstr
 
 Com PHP 8.3+, Composer, Node 22+, PostgreSQL e Redis instalados: ajuste no `.env`
 `DB_HOST=127.0.0.1`, `REDIS_HOST=127.0.0.1` e `MAIL_MAILER=log`, crie os bancos
-`advtaon` e `testing` e rode `composer install`, `php artisan key:generate`,
+`faroljuris` e `testing` e rode `composer install`, `php artisan key:generate`,
 `php artisan migrate --seed`, `npm install` e `composer dev`.
 </details>
 
@@ -199,6 +204,23 @@ mensagem (com o número mascarado) sem enviar. Para Evolution API, Z-API ou Meta
 API, implemente a interface e registre o driver em
 `AppServiceProvider::registerWhatsApp()`.
 
+## Área administrativa
+
+![Administração](docs/img/admin.png)
+
+Em `/admin`, só para administradores: buscas por dia, visitantes únicos, resultado e tempo
+das buscas, termos, tribunais e UFs mais buscados, dispositivos e origem do tráfego,
+contas e uso de cada uma, trilha de atividade e cada chamada à API do CNJ (latência,
+falhas e limite restante). Para dar acesso a alguém:
+
+```bash
+php artisan admin:promover pessoa@exemplo.com
+```
+
+O rastreio mascara o IP, pseudonimiza o visitante e apaga os registros após 180 dias
+(`DJEN_RASTREIO_DIAS_RETENCAO`). Detalhes em
+[docs/11-administracao-e-rastreio.md](docs/11-administracao-e-rastreio.md).
+
 ## LGPD
 
 - Guardamos só o necessário para o monitoramento: alvos, comunicações encontradas,
@@ -208,6 +230,8 @@ API, implemente a interface e registre o driver em
 - Uma limpeza diária (`model:prune`) remove comunicações órfãs e exportações expiradas,
   junto com os arquivos.
 - O driver de WhatsApp `log` mascara o número.
+- O rastreio da área administrativa guarda IP mascarado e visitante pseudonimizado, e é
+  apagado após 180 dias.
 
 ## Deploy em produção
 
@@ -219,17 +243,17 @@ API, implemente a interface e registre o driver em
 Em uma VPS (Ubuntu) com PHP 8.3+ (FPM), Composer, Node 22+, PostgreSQL, Redis, Nginx e
 Supervisor, os arquivos de referência ficam em [`deploy/`](deploy):
 
-| Arquivo                                 | Uso                                                                                                         |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `deploy/env.production.example`         | Valores de produção do `.env` (sem segredos)                                                                |
-| `deploy/nginx/advtaon.conf`             | Site no Nginx (HTTPS com certbot)                                                                           |
-| `deploy/supervisor/advtaon-worker.conf` | Workers da fila                                                                                             |
-| `deploy/cron/advtaon`                   | Agendador (`schedule:run` a cada minuto)                                                                    |
-| `deploy/deploy.sh`                      | Atualização: manutenção, `git pull`, dependências, build, migrations, caches, `queue:restart` e diagnóstico |
+| Arquivo                                    | Uso                                                                                                         |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `deploy/env.production.example`            | Valores de produção do `.env` (sem segredos)                                                                |
+| `deploy/nginx/faroljuris.conf`             | Site no Nginx (HTTPS com certbot)                                                                           |
+| `deploy/supervisor/faroljuris-worker.conf` | Workers da fila                                                                                             |
+| `deploy/cron/faroljuris`                   | Agendador (`schedule:run` a cada minuto)                                                                    |
+| `deploy/deploy.sh`                         | Atualização: manutenção, `git pull`, dependências, build, migrations, caches, `queue:restart` e diagnóstico |
 
 Primeira instalação, resumida:
 
-1. Clone em `/var/www/advtaon`, copie `.env.example` para `.env`, aplique
+1. Clone em `/var/www/faroljuris`, copie `.env.example` para `.env`, aplique
    `deploy/env.production.example` e defina senhas e SMTP.
 2. `composer install --no-dev -o`, `php artisan key:generate`, `npm ci`,
    `npm run build`, `php artisan migrate --force`, `php artisan optimize`.

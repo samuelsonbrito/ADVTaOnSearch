@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Notifications\WhatsApp\LogWhatsAppDriver;
 use App\Notifications\WhatsApp\WhatsAppDriver;
 use App\Services\Djen\Contracts\ComunicacaoGateway;
@@ -15,6 +16,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -31,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
             $app->make(HttpFactory::class),
             $app->make(CacheRepository::class),
             $app['config']->get('djen'),
+            $app->make('events'),
         ));
 
         $this->app->singleton(ComunicacaoGateway::class, fn ($app): ComunicacaoGateway => match ($app['config']->get('djen.gateway')) {
@@ -60,6 +63,9 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureRateLimiting();
+
+        // Área administrativa (/admin): só quem tem users.is_admin.
+        Gate::define('admin', fn (User $user): bool => (bool) $user->is_admin);
     }
 
     /**

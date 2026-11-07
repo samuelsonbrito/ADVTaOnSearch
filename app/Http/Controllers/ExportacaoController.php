@@ -9,6 +9,8 @@ use App\Jobs\GerarExportacaoJob;
 use App\Models\Exportacao;
 use App\Services\Djen\Exceptions\DjenException;
 use App\Services\Exportacao\GeradorExportacao;
+use App\Services\Rastreio\Rastreador;
+use App\Support\Rastreio\TipoEvento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -37,7 +39,7 @@ class ExportacaoController extends Controller
      * Seleções pequenas: gera na hora e inicia o download.
      * Grandes ou "todos os resultados": fila + e-mail quando ficar pronto.
      */
-    public function store(StoreExportacaoRequest $request, GeradorExportacao $gerador): HttpResponse
+    public function store(StoreExportacaoRequest $request, GeradorExportacao $gerador, Rastreador $rastreador): HttpResponse
     {
         $exportacao = $request->user()->exportacoes()->create([
             'origem' => $request->validated('origem'),
@@ -48,6 +50,14 @@ class ExportacaoController extends Controller
         $sincrona = ! $request->boolean('todos')
             && $request->quantidadeSelecionada() <= (int) config('djen.exportacao.limite_sincrono');
 
+        $rastreador->evento(TipoEvento::EXPORTACAO_CRIADA, [
+            'exportacao_id' => $exportacao->id,
+            'origem' => $exportacao->origem->value,
+            'formato' => $exportacao->formato->value,
+            'modo' => $sincrona ? 'na_hora' : 'fila',
+            'itens' => $request->boolean('todos') ? 'todos' : $request->quantidadeSelecionada(),
+        ], request: $request);
+
         if (! $sincrona) {
             GerarExportacaoJob::dispatch($exportacao);
 
@@ -56,9 +66,12 @@ class ExportacaoController extends Controller
             return to_route('exportacoes.index');
         }
 
+        Rastreador::origem('exportacao');
+
         try {
             $gerador->gerar($exportacao);
-        } catch (DjenException) {
+        } catch (DjenException $e) {
+            $rastreador->evento(TipoEvento::EXPORTACAO_FALHOU, ['exportacao_id' => $exportacao->id, 'erro' => class_basename($e)], request: $request);
             $exportacao->delete();
             Inertia::flash('toast', ['type' => 'error', 'message' => 'Não foi possível obter os dados do CNJ agora. Tente novamente em instantes.']);
 
@@ -69,11 +82,13 @@ class ExportacaoController extends Controller
         return Inertia::location(route('exportacoes.download', $exportacao));
     }
 
-    public function download(Request $request, Exportacao $exportacao): StreamedResponse
+    public function download(Request $request, Exportacao $exportacao, Rastreador $rastreador): StreamedResponse
     {
         Gate::authorize('view', $exportacao);
 
         abort_unless($exportacao->disponivel(), 404, 'Arquivo indisponível ou expirado.');
+
+        $rastreador->evento(TipoEvento::EXPORTACAO_BAIXADA, ['exportacao_id' => $exportacao->id, 'formato' => $exportacao->formato->value], request: $request);
 
         return Storage::disk(Exportacao::disco())->download(
             $exportacao->arquivo,
@@ -82,9 +97,11 @@ class ExportacaoController extends Controller
         );
     }
 
-    public function destroy(Request $request, Exportacao $exportacao): RedirectResponse
+    public function destroy(Request $request, Exportacao $exportacao, Rastreador $rastreador): RedirectResponse
     {
         Gate::authorize('delete', $exportacao);
+
+        $rastreador->evento(TipoEvento::EXPORTACAO_EXCLUIDA, ['exportacao_id' => $exportacao->id], request: $request);
 
         $exportacao->delete();
 

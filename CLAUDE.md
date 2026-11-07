@@ -1,7 +1,10 @@
-# CLAUDE.md — AdvTaOn Search
+# CLAUDE.md — FarolJuris
 
 Aplicação Laravel que consulta, monitora e exporta comunicações processuais
 (intimações, citações, editais) do **DJEN**, usando a Comunica API do PJe/CNJ.
+
+Documentação detalhada em `docs/` (índice em `docs/README.md`). Ao mudar um
+comportamento descrito lá, atualize o documento no mesmo commit.
 
 ## Stack
 
@@ -35,7 +38,8 @@ npm test                         # Vitest (vp test run)
 # DJEN
 php artisan djen:diagnostico [--sem-api]               # banco, cache, fila, e-mail e acesso à API deste servidor
 php artisan djen:verificar-filtros --oab=X --uf=UF [--processo= --parte= --advogado=]  # confere na API real se cada filtro filtra
-php artisan migrate --seed                            # usuária demo@advtaon.test / password (não roda em produção)
+php artisan migrate --seed                            # usuária demo@faroljuris.test / password (não roda em produção)
+php artisan admin:promover email@x.com [--remover]  # acesso a /admin (seeder: admin@faroljuris.test / password)
 php artisan djen:capturar-fixture --oab=12345 --uf=AM   # salva resposta REAL (precisa de IP no Brasil)
 php artisan djen:capturar-fixture --endpoint=comunicacao/tribunal --saida=tests/Fixtures/djen/tribunais.json
 
@@ -49,6 +53,19 @@ composer ci:check                # tudo acima, como no CI
 ```
 
 Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build`, commit.
+
+## Fluxo de Git (obrigatório)
+
+- Branch padrão: **`main`**. Nunca commitar direto nela.
+- Toda mudança nasce em uma branch a partir da `main`, com prefixo pelo tipo e nome do recurso em
+  kebab-case: `feature/nome-do-recurso`, `fix/descricao-do-bug`, `docs/assunto`,
+  `refactor/...`, `chore/...`, `test/...`.
+- Commits em **Conventional Commits**, em português: `tipo(escopo opcional): descrição no imperativo`.
+  Tipos: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`, `ci`, `build`.
+  Ex.: `feat(admin): adiciona dashboard de buscas`, `fix(consulta): corrige paginação com debounce`.
+  Mudança incompatível: `!` após o tipo e rodapé `BREAKING CHANGE:`.
+- Concluído o desenvolvimento (testes e checagens verdes): abrir PR para a `main`, esperar o CI
+  passar e fazer o merge. O título do PR também segue Conventional Commits.
 
 ## Convenções
 
@@ -192,15 +209,34 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 - `ComunicacaoData::textoPuro()` descarta o conteúdo de `<script>`/`<style>` (o
   `strip_tags` sozinho mantinha o código como texto).
 
+## Área administrativa e rastreio
+
+- `/admin` (`admin.*`): `auth` + `verified` + `can:admin` (gate sobre `users.is_admin`, dado só por
+  `admin:promover`). Telas `Admin/{Dashboard,Buscas,Atividade,Usuarios,ChamadasCnj}`; período na URL
+  (`App\Support\Admin\Periodo`: hoje|7d|30d|90d|personalizado, dias no fuso de exibição).
+- Rastreio via `App\Services\Rastreio\Rastreador` (nunca lança; `DJEN_RASTREIO_ATIVO`):
+  `search_logs` (ConsultaController), `djen_api_calls` (evento `ChamadaDjenConcluida` do DjenClient;
+  origem pelo `Context`, `Rastreador::origem()`), `activity_logs` (tipos em `TipoEvento`; middleware
+  `RegistrarAcesso` para páginas vistas, listener de auth, controllers e jobs).
+- LGPD: `Origem` mascara IP e gera `visitante` (HMAC com APP_KEY); sem query string; `dados` só com ids e
+  números; `model:prune` após `DJEN_RASTREIO_DIAS_RETENCAO` (180).
+- Métricas em `MetricasAdmin` (SQL Postgres, `AT TIME ZONE`, `percentile_cont`). Robôs fora das contagens.
+- Gráficos próprios em SVG (`components/admin/*`), cores `--viz-*` validadas; sempre com visão em tabela.
+- Nos testes `Unit` o rastreio fica desligado (`tests/Pest.php`): eles não limpam o banco.
+- Detalhes: `docs/11-administracao-e-rastreio.md`.
+
 ## Interface, idioma e erros
 
 - Idioma padrão `pt_BR` (`config/app.php`). Traduções do servidor em `lang/pt_BR/*.php`
   (validação, auth, senhas, paginação) e `lang/pt_BR.json` (e-mails, Fortify, toasts).
   As telas do kit (auth, settings, 2FA, passkeys) e os textos de leitor de tela do
   `components/ui` foram traduzidos no próprio Vue. Novos textos: escreva em português.
-- Identidade: `AppLogoIcon` (documento + lupa, só traço, `fill="none"` nos paths para
-  ignorar o `fill-current` dos layouts), cor da marca em `--primary`/`--sidebar-primary`
-  (`resources/css/app.css`, claro e escuro) e `public/favicon.{svg,ico}` + `apple-touch-icon.png`.
+- Identidade **FarolJuris** (nome sempre junto): `AppLogoIcon` é o farol (torre em `currentColor`,
+  luz sempre âmbar; base em gancho = J de Juris); `MarcaNome` escreve "Farol" forte + "Juris" em
+  `--marca-juris`; `AppLogo`/`PublicLayout` usam o quadrado `bg-marca`. Tokens em `resources/css/app.css`:
+  `--marca-marinho #0f2a44`, `--marca-ambar #f5a524`; claro = primária marinho, escuro = fundo marinho
+  profundo e primária âmbar. Favicons em `public/`; logos completas (SVG) em `branding/faroljuris/`.
+  Guia: `docs/12-identidade-visual.md`.
 - Erros: `bootstrap/app.php` renderiza a página Inertia `Erro` (layout público) para
   403/404/429/500/503; 419 volta com toast; JSON continua JSON; 500 com `APP_DEBUG=true`
   mostra o erro detalhado. O 429 da Consulta mostra o `Retry-After`.
@@ -211,8 +247,8 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 
 - Servidor **com IP no Brasil**. Arquivos em `deploy/`: `deploy.sh` (manutenção, pull,
   `composer --no-dev`, build, migrate, `optimize`, `queue:restart`, diagnóstico),
-  `nginx/advtaon.conf` (validado com `nginx -t`), `supervisor/advtaon-worker.conf`,
-  `cron/advtaon` e `env.production.example`.
+  `nginx/faroljuris.conf` (validado com `nginx -t`), `supervisor/faroljuris-worker.conf`,
+  `cron/faroljuris` e `env.production.example`.
 - O app funciona com `php artisan optimize` (sem `env()` fora de `config/`). Health
   check em `/up`.
 
