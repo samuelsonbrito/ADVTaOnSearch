@@ -1,4 +1,4 @@
-# CLAUDE.md — AdvTaOn Search
+# CLAUDE.md — FarolJuris
 
 Aplicação Laravel que consulta, monitora e exporta comunicações processuais
 (intimações, citações, editais) do **DJEN**, usando a Comunica API do PJe/CNJ.
@@ -38,8 +38,8 @@ npm test                         # Vitest (vp test run)
 # DJEN
 php artisan djen:diagnostico [--sem-api]               # banco, cache, fila, e-mail e acesso à API deste servidor
 php artisan djen:verificar-filtros --oab=X --uf=UF [--processo= --parte= --advogado=]  # confere na API real se cada filtro filtra
-php artisan migrate --seed                            # usuária demo@advtaon.test / password (não roda em produção)
-php artisan admin:promover email@x.com [--remover]  # acesso a /admin (seeder: admin@advtaon.test / password)
+php artisan migrate --seed                            # usuária demo@faroljuris.test / password (não roda em produção)
+php artisan admin:promover email@x.com [--remover]  # acesso a /admin (seeder: admin@faroljuris.test / password)
 php artisan djen:capturar-fixture --oab=12345 --uf=AM   # salva resposta REAL (precisa de IP no Brasil)
 php artisan djen:capturar-fixture --endpoint=comunicacao/tribunal --saida=tests/Fixtures/djen/tribunais.json
 
@@ -218,9 +218,12 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
   (validação, auth, senhas, paginação) e `lang/pt_BR.json` (e-mails, Fortify, toasts).
   As telas do kit (auth, settings, 2FA, passkeys) e os textos de leitor de tela do
   `components/ui` foram traduzidos no próprio Vue. Novos textos: escreva em português.
-- Identidade: `AppLogoIcon` (documento + lupa, só traço, `fill="none"` nos paths para
-  ignorar o `fill-current` dos layouts), cor da marca em `--primary`/`--sidebar-primary`
-  (`resources/css/app.css`, claro e escuro) e `public/favicon.{svg,ico}` + `apple-touch-icon.png`.
+- Identidade **FarolJuris** (nome sempre junto): `AppLogoIcon` é o farol (torre em `currentColor`,
+  luz sempre âmbar; base em gancho = J de Juris); `MarcaNome` escreve "Farol" forte + "Juris" em
+  `--marca-juris`; `AppLogo`/`PublicLayout` usam o quadrado `bg-marca`. Tokens em `resources/css/app.css`:
+  `--marca-marinho #0f2a44`, `--marca-ambar #f5a524`; claro = primária marinho, escuro = fundo marinho
+  profundo e primária âmbar. Favicons em `public/`; logos completas (SVG) em `branding/faroljuris/`.
+  Guia: `docs/12-identidade-visual.md`.
 - Erros: `bootstrap/app.php` renderiza a página Inertia `Erro` (layout público) para
   403/404/429/500/503; 419 volta com toast; JSON continua JSON; 500 com `APP_DEBUG=true`
   mostra o erro detalhado. O 429 da Consulta mostra o `Retry-After`.
@@ -231,8 +234,8 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 
 - Servidor **com IP no Brasil**. Arquivos em `deploy/`: `deploy.sh` (manutenção, pull,
   `composer --no-dev`, build, migrate, `optimize`, `queue:restart`, diagnóstico),
-  `nginx/advtaon.conf` (validado com `nginx -t`), `supervisor/advtaon-worker.conf`,
-  `cron/advtaon` e `env.production.example`.
+  `nginx/faroljuris.conf` (validado com `nginx -t`), `supervisor/faroljuris-worker.conf`,
+  `cron/faroljuris` e `env.production.example`.
 - O app funciona com `php artisan optimize` (sem `env()` fora de `config/`). Health
   check em `/up`.
 

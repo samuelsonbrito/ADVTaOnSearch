@@ -1,4 +1,4 @@
-# AdvTaOn Search
+# FarolJuris
 
 Consulta, monitoramento e exportação de comunicações processuais (intimações,
 citações e editais) publicadas no **DJEN – Diário de Justiça Eletrônico
@@ -14,7 +14,7 @@ Nacional**, a partir da Comunica API do PJe (CNJ).
 | **Exportações**   | login   | Seleção em lote (Consulta ou Monitoramento) para CSV, Excel ou PDF. Lotes grandes vão para a fila e avisam por e-mail.                                                   |
 
 > [!IMPORTANT]
-> O AdvTaOn chama a Comunica API do CNJ **pelo backend**, e a API **bloqueia IPs fora
+> O FarolJuris chama a Comunica API do CNJ **pelo backend**, e a API **bloqueia IPs fora
 > do Brasil**. Rode o servidor (e os workers) no Brasil. Para desenvolver fora do
 > país, use `DJEN_GATEWAY=fake` (45 comunicações fictícias).
 
@@ -50,8 +50,8 @@ para quem mexe no código: [CLAUDE.md](CLAUDE.md).
 Requisitos: Docker e Git.
 
 ```bash
-git clone git@github.com:samuelsonbrito/advtaonsearch.git
-cd advtaonsearch
+git clone git@github.com:samuelsonbrito/advtaonsearch.git faroljuris
+cd faroljuris
 cp .env.example .env
 ```
 
@@ -86,8 +86,8 @@ Pronto:
 
 - App: http://localhost (a página inicial é a Consulta)
 - E-mails: http://localhost:8025 (Mailpit)
-- Login de demonstração: `demo@advtaon.test` / `password`, já com dois alvos
-- Administrador: `admin@advtaon.test` / `password` (acesso a `/admin`)
+- Login de demonstração: `demo@faroljuris.test` / `password`, já com dois alvos
+- Administrador: `admin@faroljuris.test` / `password` (acesso a `/admin`)
 
 O `.env.example` vem com `DJEN_GATEWAY=api` (dados reais; exige estar no Brasil). Fora do
 Brasil, troque para `fake`. Para gerar os primeiros alertas da conta de demonstração
@@ -102,7 +102,7 @@ Brasil, troque para `fake`. Para gerar os primeiros alertas da conta de demonstr
 
 Com PHP 8.3+, Composer, Node 22+, PostgreSQL e Redis instalados: ajuste no `.env`
 `DB_HOST=127.0.0.1`, `REDIS_HOST=127.0.0.1` e `MAIL_MAILER=log`, crie os bancos
-`advtaon` e `testing` e rode `composer install`, `php artisan key:generate`,
+`faroljuris` e `testing` e rode `composer install`, `php artisan key:generate`,
 `php artisan migrate --seed`, `npm install` e `composer dev`.
 </details>
 
@@ -243,17 +243,17 @@ O rastreio mascara o IP, pseudonimiza o visitante e apaga os registros após 180
 Em uma VPS (Ubuntu) com PHP 8.3+ (FPM), Composer, Node 22+, PostgreSQL, Redis, Nginx e
 Supervisor, os arquivos de referência ficam em [`deploy/`](deploy):
 
-| Arquivo                                 | Uso                                                                                                         |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `deploy/env.production.example`         | Valores de produção do `.env` (sem segredos)                                                                |
-| `deploy/nginx/advtaon.conf`             | Site no Nginx (HTTPS com certbot)                                                                           |
-| `deploy/supervisor/advtaon-worker.conf` | Workers da fila                                                                                             |
-| `deploy/cron/advtaon`                   | Agendador (`schedule:run` a cada minuto)                                                                    |
-| `deploy/deploy.sh`                      | Atualização: manutenção, `git pull`, dependências, build, migrations, caches, `queue:restart` e diagnóstico |
+| Arquivo                                    | Uso                                                                                                         |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `deploy/env.production.example`            | Valores de produção do `.env` (sem segredos)                                                                |
+| `deploy/nginx/faroljuris.conf`             | Site no Nginx (HTTPS com certbot)                                                                           |
+| `deploy/supervisor/faroljuris-worker.conf` | Workers da fila                                                                                             |
+| `deploy/cron/faroljuris`                   | Agendador (`schedule:run` a cada minuto)                                                                    |
+| `deploy/deploy.sh`                         | Atualização: manutenção, `git pull`, dependências, build, migrations, caches, `queue:restart` e diagnóstico |
 
 Primeira instalação, resumida:
 
-1. Clone em `/var/www/advtaon`, copie `.env.example` para `.env`, aplique
+1. Clone em `/var/www/faroljuris`, copie `.env.example` para `.env`, aplique
    `deploy/env.production.example` e defina senhas e SMTP.
 2. `composer install --no-dev -o`, `php artisan key:generate`, `npm ci`,
    `npm run build`, `php artisan migrate --force`, `php artisan optimize`.

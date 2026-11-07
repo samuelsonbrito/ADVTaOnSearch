@@ -71,9 +71,11 @@ Definidos em `resources/js/app.ts`, pelo nome da página:
   Playwright, use `--lang=pt-BR`).
 - **Idioma**: todo texto novo em português. As telas do kit foram traduzidas no próprio
   Vue.
-- **Identidade visual**: `AppLogoIcon` (documento + lupa, só traço), cor da marca em
-  `--primary` / `--sidebar-primary` (`resources/css/app.css`, claro e escuro), favicons
-  em `public/`. Fonte local `@fontsource-variable/plus-jakarta-sans`.
+- **Identidade visual FarolJuris**: `AppLogoIcon` (o farol), `MarcaNome` (o nome escrito),
+  tokens `--marca-*` e a primária azul-marinho (claro) / âmbar (escuro) em
+  `resources/css/app.css`, favicons em `public/`. Fonte local
+  `@fontsource-variable/plus-jakarta-sans`. Guia completo em
+  [12 · Identidade visual](12-identidade-visual.md).
 
 ## Testes de front
 

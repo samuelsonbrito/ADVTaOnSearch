@@ -18,7 +18,7 @@ php artisan admin:promover pessoa@exemplo.com            # concede
 php artisan admin:promover pessoa@exemplo.com --remover  # retira
 ```
 
-No ambiente local, o seeder cria `admin@advtaon.test` / `password` (não roda em produção).
+No ambiente local, o seeder cria `admin@faroljuris.test` / `password` (não roda em produção).
 
 ## Telas
 

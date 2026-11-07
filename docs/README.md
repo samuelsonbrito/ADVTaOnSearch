@@ -1,4 +1,4 @@
-# Documentação do AdvTaOn Search
+# Documentação do FarolJuris
 
 Esta pasta explica **o que** o sistema faz, **como** ele está organizado e **por que**
 algumas decisões foram tomadas. O [README da raiz](../README.md) é o guia rápido de
@@ -20,10 +20,11 @@ vai mexer no código.
 | Rodar, testar e contribuir                   | [09 · Desenvolvimento](09-desenvolvimento.md)                   |
 | Colocar no ar, operar e resolver problemas   | [10 · Operação e deploy](10-operacao-e-deploy.md)               |
 | Ver uso, buscas e rastreio (área interna)    | [11 · Administração e rastreio](11-administracao-e-rastreio.md) |
+| Usar a marca, a logo e as cores              | [12 · Identidade visual](12-identidade-visual.md)               |
 
 ## O sistema em um parágrafo
 
-O AdvTaOn Search é uma aplicação Laravel 13 + Vue 3 (Inertia) que lê as comunicações
+O FarolJuris é uma aplicação Laravel 13 + Vue 3 (Inertia) que lê as comunicações
 processuais (intimações, citações, editais) publicadas no **DJEN** através da
 **Comunica API** do CNJ. Qualquer pessoa pode **consultar**; quem tem conta pode
 **monitorar** uma OAB, uma parte ou um processo e receber por e-mail só o que é novo; e

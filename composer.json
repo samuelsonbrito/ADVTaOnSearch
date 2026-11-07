@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "samuelsonbrito/advtaonsearch",
+    "name": "samuelsonbrito/faroljuris",
     "type": "project",
     "description": "Consulta e monitoramento de comunicações processuais do DJEN (Comunica API / CNJ).",
     "keywords": [

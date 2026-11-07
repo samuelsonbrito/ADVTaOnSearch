@@ -19,13 +19,13 @@ flowchart LR
     Sup --> CNJ
 ```
 
-| Peça        | Arquivo de referência                   | Observação                                                                                             |
-| ----------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Nginx       | `deploy/nginx/advtaon.conf`             | HTTPS com certbot; validado com `nginx -t`                                                             |
-| Workers     | `deploy/supervisor/advtaon-worker.conf` | 2 processos, `--tries=3 --timeout=650 --max-time=3600`                                                 |
-| Scheduler   | `deploy/cron/advtaon`                   | `* * * * * php artisan schedule:run`                                                                   |
-| `.env`      | `deploy/env.production.example`         | Valores de produção, sem segredos                                                                      |
-| Atualização | `deploy/deploy.sh`                      | manutenção → pull → composer `--no-dev` → build → migrate → `optimize` → `queue:restart` → diagnóstico |
+| Peça        | Arquivo de referência                      | Observação                                                                                             |
+| ----------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Nginx       | `deploy/nginx/faroljuris.conf`             | HTTPS com certbot; validado com `nginx -t`                                                             |
+| Workers     | `deploy/supervisor/faroljuris-worker.conf` | 2 processos, `--tries=3 --timeout=650 --max-time=3600`                                                 |
+| Scheduler   | `deploy/cron/faroljuris`                   | `* * * * * php artisan schedule:run`                                                                   |
+| `.env`      | `deploy/env.production.example`            | Valores de produção, sem segredos                                                                      |
+| Atualização | `deploy/deploy.sh`                         | manutenção → pull → composer `--no-dev` → build → migrate → `optimize` → `queue:restart` → diagnóstico |
 
 O `--timeout=650` do worker é maior que o `timeout` de 600 s do `GerarExportacaoJob`,
 para que uma exportação grande não seja morta no meio.
@@ -70,7 +70,7 @@ provavelmente não são o que você quer em produção: fila `sync`, e-mail `log
 | ------------------------------------------------- | --------------------------------------- | ----------------------------------------------------- |
 | `DJEN_GATEWAY`                                    | `api`                                   | `api` (CNJ) ou `fake` (dados fictícios)               |
 | `DJEN_BASE_URL`                                   | `https://comunicaapi.pje.jus.br/api/v1` | Homologação: `https://hcomunicaapi.cnj.jus.br/api/v1` |
-| `DJEN_USER_AGENT`                                 | `AdvTaOnSearch/1.0`                     | Identificação nas chamadas                            |
+| `DJEN_USER_AGENT`                                 | `FarolJuris/1.0`                        | Identificação nas chamadas                            |
 | `DJEN_TIMEOUT` / `DJEN_CONNECT_TIMEOUT`           | 20 / 5 s                                | Timeouts                                              |
 | `DJEN_RETRY_TIMES`                                | 3                                       | Tentativas extras (conexão, 429, 5xx)                 |
 | `DJEN_RETRY_SLEEP_MS` / `DJEN_RETRY_MAX_SLEEP_MS` | 500 / 10000                             | Base e teto do backoff                                |
