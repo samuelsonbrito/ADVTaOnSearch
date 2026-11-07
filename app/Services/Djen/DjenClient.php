@@ -22,8 +22,8 @@ use Throwable;
  * exponencial (conexão, 429 e 5xx), tradução de falhas em exceções de
  * domínio e cache das consultas com chave baseada nos filtros.
  *
- * Não conhece os campos da resposta: isso fica para os DTOs, que serão
- * escritos a partir de uma resposta real da API.
+ * Não conhece os campos da resposta: a tradução para DTOs fica em
+ * Mapping\ComunicacaoApiMapper.
  */
 class DjenClient
 {
