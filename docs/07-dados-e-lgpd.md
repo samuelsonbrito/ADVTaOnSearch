@@ -61,13 +61,16 @@ erDiagram
     }
 ```
 
-| Tabela                 | Model              | Observações                                                                                    |
-| ---------------------- | ------------------ | ---------------------------------------------------------------------------------------------- |
-| `users`                | `User`             | Do Starter Kit (Fortify, 2FA, passkeys) + coluna `whatsapp`.                                   |
-| `monitoring_targets`   | `MonitoringTarget` | Único em `(user_id, tipo, valor, uf)`. Índice `(ativo, id)` para o comando diário.             |
-| `communications`       | `Communication`    | **Compartilhada entre usuários**, deduplicada por `hash`. Índices em data e processo.          |
-| `communication_target` | `Alerta` (pivot)   | Único em `(communication_id, monitoring_target_id)`. Índice `(monitoring_target_id, lida_em)`. |
-| `exports`              | `Exportacao`       | Índice `(user_id, created_at)`.                                                                |
+| Tabela                 | Model              | Observações                                                                                          |
+| ---------------------- | ------------------ | ---------------------------------------------------------------------------------------------------- |
+| `users`                | `User`             | Do Starter Kit (Fortify, 2FA, passkeys) + coluna `whatsapp`.                                         |
+| `monitoring_targets`   | `MonitoringTarget` | Único em `(user_id, tipo, valor, uf)`. Índice `(ativo, id)` para o comando diário.                   |
+| `communications`       | `Communication`    | **Compartilhada entre usuários**, deduplicada por `hash`. Índices em data e processo.                |
+| `communication_target` | `Alerta` (pivot)   | Único em `(communication_id, monitoring_target_id)`. Índice `(monitoring_target_id, lida_em)`.       |
+| `exports`              | `Exportacao`       | Índice `(user_id, created_at)`.                                                                      |
+| `search_logs`          | `RegistroBusca`    | Rastreio: uma linha por busca na Consulta. Ver [11 · Administração](11-administracao-e-rastreio.md). |
+| `djen_api_calls`       | `ChamadaDjen`      | Rastreio: uma linha por requisição real à Comunica API.                                              |
+| `activity_logs`        | `Atividade`        | Rastreio: trilha de eventos (páginas vistas, login, alvos, exportações...).                          |
 
 Também existem as tabelas padrão do Laravel: `cache`, `jobs`, `failed_jobs`,
 `sessions`, `password_reset_tokens` e `passkeys`.
@@ -93,6 +96,10 @@ PostgreSQL reordena as chaves de `jsonb`; nos testes, compare com `toEqual`, nã
 
 ## LGPD
 
+> O rastreio da área administrativa (`search_logs`, `djen_api_calls`, `activity_logs`)
+> tem regras próprias de minimização e retenção: ver
+> [11 · Administração e rastreio](11-administracao-e-rastreio.md#lgpd).
+
 ### Princípio: guardar o mínimo
 
 - A **Consulta** não grava nada no banco. O resultado fica só no cache (10 min).
@@ -102,13 +109,13 @@ PostgreSQL reordena as chaves de `jsonb`; nos testes, compare com `toEqual`, nã
 
 ### O que apaga o quê
 
-| Ação                                         | Apaga                                                                                                             |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Excluir um alvo                              | o alvo, seus alertas e as comunicações que ficaram sem alvo (na hora)                                             |
-| "Excluir todos os meus dados" (pede a senha) | todos os alvos e alertas, o WhatsApp e as comunicações órfãs                                                      |
-| Excluir a conta (Configurações)              | a conta, alvos e alertas (FK em cascata), exportações e seus arquivos; as comunicações órfãs saem no prune diário |
-| Excluir uma exportação                       | o registro e o arquivo                                                                                            |
-| `model:prune` diário (03:17)                 | comunicações sem alvo (`Communication::prunable`) e exportações com mais de 7 dias (registro + arquivo)           |
+| Ação                                         | Apaga                                                                                                                                                                       |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Excluir um alvo                              | o alvo, seus alertas e as comunicações que ficaram sem alvo (na hora)                                                                                                       |
+| "Excluir todos os meus dados" (pede a senha) | todos os alvos e alertas, o WhatsApp e as comunicações órfãs                                                                                                                |
+| Excluir a conta (Configurações)              | a conta, alvos e alertas (FK em cascata), exportações e seus arquivos; as comunicações órfãs saem no prune diário                                                           |
+| Excluir uma exportação                       | o registro e o arquivo                                                                                                                                                      |
+| `model:prune` diário (03:17)                 | comunicações sem alvo (`Communication::prunable`), exportações com mais de 7 dias (registro + arquivo) e rastreio (buscas, chamadas ao CNJ, atividade) com mais de 180 dias |
 
 ```mermaid
 flowchart LR

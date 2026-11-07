@@ -1,7 +1,10 @@
 <?php
 
+use App\Models\Atividade;
+use App\Models\ChamadaDjen;
 use App\Models\Communication;
 use App\Models\Exportacao;
+use App\Models\RegistroBusca;
 use Illuminate\Support\Facades\Schedule;
 
 // Monitoramento diário dos alvos (horário e fuso em config/djen.php).
@@ -12,8 +15,11 @@ Schedule::command('djen:monitorar')
     ->onOneServer()
     ->description('Monitoramento DJEN');
 
-// LGPD: apaga comunicações que nenhum alvo referencia mais e exportações
-// (registro + arquivo) mais antigas que a retenção configurada.
-Schedule::command('model:prune', ['--model' => [Communication::class, Exportacao::class]])
+// LGPD: apaga comunicações que nenhum alvo referencia mais, exportações
+// (registro + arquivo) e rastreio (buscas, chamadas ao CNJ, atividade)
+// mais antigos que a retenção configurada.
+Schedule::command('model:prune', ['--model' => [
+    Communication::class, Exportacao::class, RegistroBusca::class, ChamadaDjen::class, Atividade::class,
+]])
     ->dailyAt('03:17')
-    ->description('Limpeza LGPD (comunicações órfãs e exportações expiradas)');
+    ->description('Limpeza LGPD (comunicações órfãs, exportações expiradas e rastreio antigo)');

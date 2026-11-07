@@ -7,8 +7,11 @@ use App\Models\MonitoringTarget;
 use App\Notifications\NovasComunicacoes;
 use App\Services\Djen\Exceptions\DjenBadRequestException;
 use App\Services\Djen\Exceptions\DjenBlockedException;
+use App\Services\Djen\Exceptions\DjenException;
 use App\Services\Djen\Exceptions\DjenRateLimitedException;
 use App\Services\Monitoramento\MonitorarAlvo;
+use App\Services\Rastreio\Rastreador;
+use App\Support\Rastreio\TipoEvento;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\RateLimited;
@@ -47,29 +50,45 @@ class MonitorarAlvoJob implements ShouldQueue
 
     public function handle(MonitorarAlvo $monitorar): void
     {
+        $rastreador = app(Rastreador::class);
         $this->alvo->refresh();
 
         if (! $this->alvo->ativo) {
             return;
         }
 
-        try {
-            $monitorar->executar($this->alvo);
-        } catch (DjenRateLimitedException $e) {
-            $this->release($e->retryAfterSeconds ?? 60);
+        Rastreador::origem('monitoramento');
+        $inicio = hrtime(true);
 
-            return;
-        } catch (DjenBlockedException|DjenBadRequestException $e) {
-            // Não adianta tentar de novo agora.
-            $this->fail($e);
+        try {
+            $novos = $monitorar->executar($this->alvo);
+        } catch (DjenException $e) {
+            $rastreador->evento(TipoEvento::MONITORAMENTO_FALHOU, [
+                'alvo_id' => $this->alvo->id,
+                'erro' => class_basename($e),
+                'tentativa' => $this->attempts(),
+            ], $this->alvo->user);
+
+            match (true) {
+                $e instanceof DjenRateLimitedException => $this->release($e->retryAfterSeconds ?? 60),
+                // Não adianta tentar de novo agora.
+                $e instanceof DjenBlockedException, $e instanceof DjenBadRequestException => $this->fail($e),
+                default => throw $e,
+            };
 
             return;
         }
 
-        $this->notificarPendentes();
+        $rastreador->evento(TipoEvento::MONITORAMENTO_EXECUTADO, [
+            'alvo_id' => $this->alvo->id,
+            'novos' => $novos,
+            'duracao_ms' => (int) round((hrtime(true) - $inicio) / 1_000_000),
+        ], $this->alvo->user);
+
+        $this->notificarPendentes($rastreador);
     }
 
-    private function notificarPendentes(): void
+    private function notificarPendentes(Rastreador $rastreador): void
     {
         $pendentes = $this->alvo->alertas()
             ->whereNull('notificada_em')
@@ -86,5 +105,11 @@ class MonitorarAlvoJob implements ShouldQueue
         $this->alvo->user->notify(new NovasComunicacoes($this->alvo, $pendentes));
 
         Alerta::whereKey($pendentes->modelKeys())->update(['notificada_em' => now()]);
+
+        $rastreador->evento(TipoEvento::NOTIFICACAO_ENVIADA, [
+            'alvo_id' => $this->alvo->id,
+            'quantidade' => $pendentes->count(),
+            'canais' => $this->alvo->user->whatsapp ? ['email', 'whatsapp'] : ['email'],
+        ], $this->alvo->user);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Djen\DjenClient;
 use App\Services\Djen\Exceptions\DjenException;
+use App\Services\Rastreio\Rastreador;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -35,6 +36,8 @@ class VerificarFiltrosDjen extends Command
 
     public function handle(DjenClient $client): int
     {
+        Rastreador::origem('comando');
+
         $data = $this->option('data')
             ? CarbonImmutable::createFromFormat('!Y-m-d', (string) $this->option('data'))
             : self::ultimoDiaUtil();

@@ -29,7 +29,7 @@ final class DjenApiGateway implements ComunicacaoGateway
     {
         $resposta = $this->client->getCached('comunicacao', self::parametros($filtro));
 
-        return $this->mapper->resultado($resposta->json, $filtro->pagina, $filtro->porPagina);
+        return $this->mapper->resultado($resposta->json, $filtro->pagina, $filtro->porPagina, $resposta->fromCache);
     }
 
     public function tribunais(): array

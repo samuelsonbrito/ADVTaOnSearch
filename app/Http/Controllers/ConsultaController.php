@@ -10,23 +10,32 @@ use App\Services\Djen\Exceptions\DjenBlockedException;
 use App\Services\Djen\Exceptions\DjenException;
 use App\Services\Djen\Exceptions\DjenRateLimitedException;
 use App\Services\Djen\Exceptions\DjenUnavailableException;
+use App\Services\Rastreio\Rastreador;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /** Aba Consulta: pública, filtros na query string. */
 class ConsultaController extends Controller
 {
-    public function __invoke(ConsultaRequest $request, ComunicacaoGateway $gateway): Response
+    public function __invoke(ConsultaRequest $request, ComunicacaoGateway $gateway, Rastreador $rastreador): Response
     {
         $filtro = $request->filtro();
         $resultados = null;
         $erro = null;
 
-        if (! $request->invalido() && $filtro->temCriterio()) {
+        if ($request->invalido()) {
+            $rastreador->busca($request, $filtro, 'invalido');
+        } elseif ($filtro->temCriterio()) {
+            Rastreador::origem('consulta');
+            $inicio = hrtime(true);
+
             try {
-                $resultados = (new ResultadoConsultaResource($gateway->buscar($filtro)))->resolve($request);
+                $resultado = $gateway->buscar($filtro);
+                $resultados = (new ResultadoConsultaResource($resultado))->resolve($request);
+                $rastreador->busca($request, $filtro, $resultado->total > 0 ? 'ok' : 'vazio', $resultado, duracaoMs: self::ms($inicio));
             } catch (DjenException $e) {
                 $erro = self::erro($e);
+                $rastreador->busca($request, $filtro, 'erro', erroTipo: $erro['tipo'], duracaoMs: self::ms($inicio));
             }
         }
 
@@ -52,6 +61,11 @@ class ConsultaController extends Controller
         }
 
         return Inertia::render('Consulta/Index', $props);
+    }
+
+    private static function ms(int $inicio): int
+    {
+        return (int) round((hrtime(true) - $inicio) / 1_000_000);
     }
 
     /**

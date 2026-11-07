@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Djen\DjenClient;
 use App\Services\Djen\Exceptions\DjenException;
+use App\Services\Rastreio\Rastreador;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -31,6 +32,8 @@ class CapturarFixtureDjen extends Command
 {
     public function handle(DjenClient $client): int
     {
+        Rastreador::origem('comando');
+
         $endpoint = (string) $this->option('endpoint');
         $query = $endpoint === 'comunicacao' ? [
             'numeroOab' => $this->option('oab'),

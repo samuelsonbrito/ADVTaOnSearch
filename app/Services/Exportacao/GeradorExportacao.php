@@ -7,6 +7,8 @@ use App\Enums\OrigemExportacao;
 use App\Enums\StatusExportacao;
 use App\Models\Exportacao;
 use App\Services\Djen\Exceptions\DjenException;
+use App\Services\Rastreio\Rastreador;
+use App\Support\Rastreio\TipoEvento;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Excel;
@@ -17,6 +19,7 @@ final class GeradorExportacao
 {
     public function __construct(
         private readonly ColetorExportacao $coletor,
+        private readonly Rastreador $rastreador,
     ) {}
 
     /**
@@ -24,6 +27,7 @@ final class GeradorExportacao
      */
     public function gerar(Exportacao $exportacao): void
     {
+        $inicio = hrtime(true);
         $exportacao->update(['status' => StatusExportacao::Processando, 'erro' => null]);
 
         $linhas = $this->coletor->linhas($exportacao);
@@ -38,6 +42,13 @@ final class GeradorExportacao
             'total_itens' => count($linhas),
             'concluida_em' => now(),
         ]);
+
+        $this->rastreador->evento(TipoEvento::EXPORTACAO_CONCLUIDA, [
+            'exportacao_id' => $exportacao->id,
+            'formato' => $exportacao->formato->value,
+            'total' => count($linhas),
+            'duracao_ms' => (int) round((hrtime(true) - $inicio) / 1_000_000),
+        ], $exportacao->user);
     }
 
     /**
