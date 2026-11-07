@@ -5,6 +5,11 @@
 > de fora do país. Isso vale para o site e para os workers. Use uma região brasileira
 > (por exemplo, AWS `sa-east-1`, São Paulo).
 
+> [!TIP]
+> Produção em **https://faroljuris.com.br**, publicada pelo **Ploi** num VPS da Hostinger:
+> passo a passo em [13 · Deploy no Ploi](13-deploy-ploi.md). As peças abaixo (nginx,
+> supervisor, cron, `deploy.sh`) são para um VPS sem painel; no Ploi, cada uma vira uma aba.
+
 ## Peças em produção
 
 ```mermaid

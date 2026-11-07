@@ -21,6 +21,7 @@ vai mexer no código.
 | Colocar no ar, operar e resolver problemas   | [10 · Operação e deploy](10-operacao-e-deploy.md)               |
 | Ver uso, buscas e rastreio (área interna)    | [11 · Administração e rastreio](11-administracao-e-rastreio.md) |
 | Usar a marca, a logo e as cores              | [12 · Identidade visual](12-identidade-visual.md)               |
+| Publicar no Ploi (VPS Hostinger)             | [13 · Deploy no Ploi](13-deploy-ploi.md)                        |
 
 ## O sistema em um parágrafo
 
