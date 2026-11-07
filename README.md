@@ -50,8 +50,8 @@ para quem mexe no código: [CLAUDE.md](CLAUDE.md).
 Requisitos: Docker e Git.
 
 ```bash
-git clone git@github.com:samuelsonbrito/advtaonsearch.git faroljuris
-cd faroljuris
+git clone git@github.com:samuelsonbrito/FarolJuris.git
+cd FarolJuris
 cp .env.example .env
 ```
 

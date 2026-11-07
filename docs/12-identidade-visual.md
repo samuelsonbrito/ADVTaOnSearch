@@ -9,9 +9,8 @@
 
 Slogan sugerido: _"Suas intimações do DJEN, todo dia, antes do prazo."_
 
-> [!NOTE]
-> O repositório no GitHub continua `samuelsonbrito/ADVTaOnSearch`. Renomear é uma opção
-> nas configurações do GitHub (o endereço antigo passa a redirecionar).
+Repositório: [`samuelsonbrito/FarolJuris`](https://github.com/samuelsonbrito/FarolJuris)
+(o endereço antigo, `ADVTaOnSearch`, redireciona para ele).
 
 ## O símbolo
 
