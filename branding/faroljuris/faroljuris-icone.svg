@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FarolJuris">
+  <defs>
+    <linearGradient id="beamfaroljurisiconesvgR" x1="37" y1="0" x2="63" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F5A524" stop-opacity=".95"/>
+      <stop offset="1" stop-color="#F5A524" stop-opacity=".18"/>
+    </linearGradient>
+    <linearGradient id="beamfaroljurisiconesvgL" x1="27" y1="0" x2="5" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F5A524" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#F5A524" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- feixes de luz; o da direita revela linhas de texto (as publicações) -->
+  <path d="M27 17 5 9.5v15z" fill="url(#beamfaroljurisiconesvgL)"/>
+  <path d="M37 17 63 5.5v23z" fill="url(#beamfaroljurisiconesvgR)"/>
+  <g stroke="#0F2A44" stroke-width="2.2" stroke-linecap="round" opacity=".9">
+    <path d="M50 12.6h9.5M46.5 17h13M50 21.4h6.5"/>
+  </g>
+  <!-- lanterna, cúpula e galeria -->
+  <circle cx="32" cy="4.6" r="1.5" fill="#0F2A44"/>
+  <path d="M23.5 13.2 32 6.2l8.5 7z" fill="#0F2A44"/>
+  <rect x="27" y="13" width="10" height="8.2" rx="1.6" fill="#F5A524"/>
+  <circle cx="32" cy="17.1" r="2.3" fill="#FFE7A8"/>
+  <rect x="23.2" y="21" width="17.6" height="3.2" rx="1.1" fill="#0F2A44"/>
+  <!-- torre com faixa âmbar -->
+  <path d="M26.6 24.2h10.8l3.4 24.6H23.2z" fill="#0F2A44"/>
+  <path d="M25.3 33h13.4l.55 4H24.75z" fill="#F5A524"/>
+  <!-- base em gancho: a onda que desenha o J de Juris -->
+  <path d="M38.6 46.5c1.4 10.4-12 14.6-21.4 7.6" fill="none" stroke="#0F2A44" stroke-width="4.6" stroke-linecap="round"/>
+</svg>
