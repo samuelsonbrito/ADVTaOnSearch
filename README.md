@@ -235,6 +235,10 @@ O rastreio mascara o IP, pseudonimiza o visitante e apaga os registros após 180
 
 ## Deploy em produção
 
+Produção: **https://faroljuris.com.br**. Com o painel **Ploi** (VPS da Hostinger, junto de
+outros sites), siga [docs/13-deploy-ploi.md](docs/13-deploy-ploi.md). Os arquivos de
+`deploy/` abaixo são para configurar um VPS sem painel.
+
 > [!WARNING]
 > **O servidor precisa ter IP no Brasil.** A Comunica API responde `403` para acessos
 > de fora do país, e isso vale para o site e para os jobs de monitoramento. Use um

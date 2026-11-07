@@ -245,6 +245,9 @@ Ao final de cada fase: Pest, Vitest, Pint, `vp check`, `vue-tsc`, `npm run build
 
 ## Deploy
 
+- Produção: **https://faroljuris.com.br**, publicada pelo **Ploi** num VPS da Hostinger que
+  hospeda outros sites. Guia `docs/13-deploy-ploi.md`; script de deploy do Ploi em
+  `deploy/ploi/deploy-script.sh` (mudou o processo de deploy? atualize os dois).
 - Servidor **com IP no Brasil**. Arquivos em `deploy/`: `deploy.sh` (manutenção, pull,
   `composer --no-dev`, build, migrate, `optimize`, `queue:restart`, diagnóstico),
   `nginx/faroljuris.conf` (validado com `nginx -t`), `supervisor/faroljuris-worker.conf`,
