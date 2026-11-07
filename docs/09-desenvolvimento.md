@@ -15,11 +15,11 @@ cp .env.example .env
 ./vendor/bin/sail artisan schedule:work        # outro terminal
 ```
 
-| Serviço | Endereço                                                           |
-| ------- | ------------------------------------------------------------------ |
-| App     | http://localhost                                                   |
-| Mailpit | http://localhost:8025                                              |
-| Login   | `demo@advtaon.test` / `password` (do seeder; não roda em produção) |
+| Serviço | Endereço                                                              |
+| ------- | --------------------------------------------------------------------- |
+| App     | http://localhost                                                      |
+| Mailpit | http://localhost:8025                                                 |
+| Login   | `demo@faroljuris.test` / `password` (do seeder; não roda em produção) |
 
 > [!TIP]
 > **Fora do Brasil**, use `DJEN_GATEWAY=fake` no `.env`. A API real responde `403` e

@@ -165,5 +165,5 @@ php artisan djen:monitorar --alvo=3 --sync        # só o alvo 3
 php artisan schedule:test --name=djen:monitorar   # como o scheduler faria
 ```
 
-Com `DJEN_GATEWAY=fake` e o seeder (`demo@advtaon.test` / `password`), dá para ver o
+Com `DJEN_GATEWAY=fake` e o seeder (`demo@faroljuris.test` / `password`), dá para ver o
 fluxo completo fora do Brasil; os e-mails aparecem no Mailpit (`http://localhost:8025`).

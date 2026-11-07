@@ -18,7 +18,7 @@ return [
 
     'base_url' => rtrim((string) env('DJEN_BASE_URL', 'https://comunicaapi.pje.jus.br/api/v1'), '/'),
 
-    'user_agent' => env('DJEN_USER_AGENT', 'AdvTaOnSearch/1.0'),
+    'user_agent' => env('DJEN_USER_AGENT', 'FarolJuris/1.0'),
 
     // Segundos.
     'timeout' => (int) env('DJEN_TIMEOUT', 20),

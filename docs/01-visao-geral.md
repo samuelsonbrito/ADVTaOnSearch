@@ -9,7 +9,7 @@ Perder uma intimação pode significar perder um prazo.
 
 O CNJ oferece a **Comunica API** (`https://comunicaapi.pje.jus.br/api/v1`), pública e
 sem autenticação, mas crua: JSON, sem alertas, sem histórico, sem exportação. O
-AdvTaOn Search põe uma interface e uma rotina de monitoramento em cima dela.
+FarolJuris põe uma interface e uma rotina de monitoramento em cima dela.
 
 ## As três abas
 

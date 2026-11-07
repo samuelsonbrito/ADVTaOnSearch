@@ -1,4 +1,0 @@
-# Scheduler do Laravel (monitoramento diário e limpeza LGPD).
-# Instalação: sudo cp deploy/cron/advtaon /etc/cron.d/advtaon
-# O horário do monitoramento é definido em DJEN_MONITORING_TIME / DJEN_MONITORING_TIMEZONE.
-* * * * * www-data cd /var/www/advtaon && php artisan schedule:run >> /dev/null 2>&1

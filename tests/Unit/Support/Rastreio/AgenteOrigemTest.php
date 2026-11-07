@@ -34,7 +34,7 @@ it('mascara o IP e pseudonimiza o visitante', function () {
 });
 
 it('lê a origem de uma requisição sem guardar o IP inteiro', function () {
-    $request = Request::create('https://advtaon.test/consulta', server: [
+    $request = Request::create('https://faroljuris.test/consulta', server: [
         'REMOTE_ADDR' => '200.10.20.30',
         'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 10.0) Chrome/130.0 Safari/537.36',
         'HTTP_REFERER' => 'https://www.google.com/search?q=intimacao',

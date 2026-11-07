@@ -20,7 +20,7 @@ const BASE = 'https://djen.test/api/v1';
 beforeEach(function () {
     config([
         'djen.base_url' => BASE,
-        'djen.user_agent' => 'AdvTaOnSearch/teste',
+        'djen.user_agent' => 'FarolJuris/teste',
         'djen.timeout' => 7,
         'djen.connect_timeout' => 3,
         'djen.retry.times' => 2,
@@ -61,7 +61,7 @@ describe('requisição', function () {
             return str_starts_with($request->url(), BASE.'/comunicacao?')
                 && $query === ['numeroOab' => '12345', 'ufOab' => 'AM', 'pagina' => '1']
                 && $request->hasHeader('Accept', 'application/json')
-                && $request->hasHeader('User-Agent', 'AdvTaOnSearch/teste');
+                && $request->hasHeader('User-Agent', 'FarolJuris/teste');
         });
     });
 
